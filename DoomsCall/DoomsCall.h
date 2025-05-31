@@ -32,18 +32,14 @@ public:
     const sf::Uint8* geticon() const;
 };
 
-
-
 class Object {
 protected:
     sf::RectangleShape shape;
-    phy::Velocity velocity;
-    phy::Acceleration acceleration;
-    bool grounded;
+    
     bool solid;
-    bool hitceiling;
+    
 public:
-    Object(sf::Uint32 color,bool sol,const sf::Vector2f& position = { 0.f, 0.f }, const sf::Vector2f& size = { 50.f, 50.f });
+    Object(sf::Uint32 color,bool sol,const sf::Vector2f& position, const sf::Vector2f& size);
     void draw(sf::RenderWindow& window) const;
     void setPosition(const sf::Vector2f& position);
     void setPosition(float x, float y);
@@ -53,9 +49,19 @@ public:
     sf::FloatRect getBounds() const;
     bool intersects(const Object& other) const;
     bool issolid();
+    
+};
+class DynamicObject:public Object {
+protected:
+    DynamicObject(sf::Uint32 color, bool sol, const sf::Vector2f& position, const sf::Vector2f& size);
+    phy::Velocity velocity;
+    phy::Acceleration acceleration;
+    bool grounded;
+    bool hitceiling;
+public:
     void simulateMovement(std::vector<Object>& objects, float deltatime);
 };
-class Player : public Object {
+class Player : public DynamicObject {
 private:
     bool ishuman;
     float speed;

@@ -18,7 +18,7 @@ Settings::Settings() {
     }
 	length = 0;
 	width = 0;
-    maxFPS = 0;
+    maxFPS = 120;
 	std::ifstream fin("Option.txt");
 	if (!fin) {
         std::cout << "Fail";
@@ -43,9 +43,7 @@ const sf::Uint8* Settings::geticon() const {
 }
 
 
-Object::Object(sf::Uint32 color = 0,bool sol = false , const sf::Vector2f& position, const sf::Vector2f& size) {
-    grounded = false;
-    hitceiling = false;
+Object::Object(sf::Uint32 color = 0, bool sol = false, const sf::Vector2f& position = { 0.f, 0.f }, const sf::Vector2f& size = { 50.f, 50.f}) {
     solid = sol;
     shape.setPosition(position);
     shape.setSize(size);
@@ -78,7 +76,13 @@ bool Object::intersects(const Object& other) const {
 bool Object::issolid() {
     return solid;
 };
-void Object::simulateMovement(std::vector<Object>& objects, float deltatime) {
+
+DynamicObject::DynamicObject(sf::Uint32 color, bool sol = false, const sf::Vector2f& position = { 0.f, 0.f }, const sf::Vector2f& size = { 50.f, 50.f }):
+Object(color,sol,position,size){
+    grounded = false;
+    hitceiling = false;
+}
+void DynamicObject::simulateMovement(std::vector<Object>& objects, float deltatime) {
     if (grounded || hitceiling) {
         velocity = phy::Velocity(velocity.value.x, 0);
     }
@@ -121,7 +125,7 @@ void Object::simulateMovement(std::vector<Object>& objects, float deltatime) {
     }
 }
 
-Player::Player(sf::Uint32 color,bool human = true):Object(color) {
+Player::Player(sf::Uint32 color,bool human = true):DynamicObject(color) {
     ishuman = human;
     speed = 500.f;
 }
