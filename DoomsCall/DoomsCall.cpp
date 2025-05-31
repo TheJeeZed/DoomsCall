@@ -42,7 +42,6 @@ const sf::Uint8* Settings::geticon() const {
     return icon.getPixelsPtr();
 }
 
-
 Object::Object(sf::Uint32 color = 0, bool sol = false, const sf::Vector2f& position = { 0.f, 0.f }, const sf::Vector2f& size = { 50.f, 50.f}) {
     solid = sol;
     shape.setPosition(position);

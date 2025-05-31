@@ -32,6 +32,15 @@ public:
     const sf::Uint8* geticon() const;
 };
 
+enum ItemType{FIREARM,SIDEARM,SPECIAL,MISC};
+class Item {
+protected:
+    std::string name;
+    ItemType type;
+    virtual void whenHeld() = 0;
+    virtual void whenUse() = 0;
+};
+
 class Object {
 protected:
     sf::RectangleShape shape;
