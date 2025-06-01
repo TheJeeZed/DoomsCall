@@ -5,6 +5,14 @@
 #include <vector>
 #include <iostream>
 
+class Settings;
+class Assets;
+class Item;
+class Inventory;
+class Object;
+class DynamicObject;
+class Player;
+class Map;
 
 namespace phy {
     struct Velocity {
@@ -19,6 +27,8 @@ namespace phy {
     };
 }
 
+
+
 class Settings {
     sf::Image icon;
     int length;
@@ -29,16 +39,42 @@ public:
     int getlength() const;
     int getwidth() const;
     int getmaxFPS() const;
+    
     const sf::Uint8* geticon() const;
 };
+class Assets{
+private:
+    std::vector<sf::Texture> textures;
+public:
+    void loadTextures();
+    std::vector<sf::Texture>& getTexture();
+};
 
-enum ItemType{FIREARM,SIDEARM,SPECIAL,MISC};
+enum ItemType{FIREARM,SIDEARM,SPECIAL,THROWABLE,MISC};
 class Item {
 protected:
     std::string name;
-    ItemType type;
-    virtual void whenHeld() = 0;
-    virtual void whenUse() = 0;
+public:
+    virtual void whenHeld(Player& player) = 0;
+    virtual void whenUsed(Player& player) = 0;
+    virtual ~Item() = 0;
+};
+class Bandage :public Item {
+    void whenHeld(Player& player);
+    void whenUsed(Player& player);
+};
+class Inventory {
+private:
+    int selection;
+    Item** inventory;
+public:
+    Inventory();
+    void setSelection(int select);
+    int getSelection();
+    void addItem(Item* item);
+    void removeItem();
+    Item* getItem();
+    ~Inventory();
 };
 
 class Object {
@@ -73,10 +109,15 @@ public:
 class Player : public DynamicObject {
 private:
     bool ishuman;
+    int maxhealth;
+    int health;
     float speed;
+    Inventory inventory;
 public:
     Player(sf::Uint32 color,bool human);
+    void heal(int amount);
     void handleInput(std::vector<Object>& objects,float delta);
+    void drawHUD(sf::RenderWindow& window, std::vector<sf::Texture>& textures,sf::Vector2f playerview);
 };
 class Map {
 public:

@@ -2,6 +2,8 @@
 
 int main() {
     Settings s;
+    Assets assets;
+    assets.loadTextures();
     sf::RenderWindow window(sf::VideoMode(800, 600), "DOOMSCALL");
     window.setFramerateLimit(s.getmaxFPS());
     sf::Clock clock;
@@ -43,11 +45,13 @@ int main() {
         float delta = clock.restart().asSeconds();
         player.handleInput(map.objects,delta);
         player.simulateMovement(map.objects, delta);
+
         window.clear(sf::Color::Black);
-        player.draw(window);
         map.drawMap(window);
         camera.setCenter(player.getPosition());
         window.setView(camera);
+        player.drawHUD(window, assets.getTexture(), camera.getCenter());
+        player.draw(window);
         window.display();
     }
     return 0;
