@@ -28,7 +28,7 @@ namespace phy {
 }
 
 
-
+enum AssetType { HUD,TILES};
 class Settings {
     sf::Image icon;
     int length;
@@ -44,24 +44,29 @@ public:
 };
 class Assets{
 private:
-    std::vector<sf::Texture> textures;
+    static std::vector<sf::Texture> textures;
 public:
-    void loadTextures();
-    std::vector<sf::Texture>& getTexture();
+    static void loadTextures();
+    static sf::Texture& getTexture(AssetType type);
 };
 
-enum ItemType{FIREARM,SIDEARM,SPECIAL,THROWABLE,MISC};
 class Item {
 protected:
-    std::string name;
+    int count;
 public:
     virtual void whenHeld(Player& player) = 0;
     virtual void whenUsed(Player& player) = 0;
     virtual ~Item() = 0;
 };
 class Bandage :public Item {
+public:
     void whenHeld(Player& player);
     void whenUsed(Player& player);
+};
+class Medkit :public Item {
+public:
+    void whenHeld(Player & player);
+    void whenUsed(Player & player);
 };
 class Inventory {
 private:
@@ -80,7 +85,6 @@ public:
 class Object {
 protected:
     sf::RectangleShape shape;
-    
     bool solid;
     
 public:
@@ -117,7 +121,7 @@ public:
     Player(sf::Uint32 color,bool human);
     void heal(int amount);
     void handleInput(std::vector<Object>& objects,float delta);
-    void drawHUD(sf::RenderWindow& window, std::vector<sf::Texture>& textures,sf::Vector2f playerview);
+    void drawHUD(sf::RenderWindow& window,sf::Vector2f playerview);
 };
 class Map {
 public:
@@ -125,3 +129,23 @@ public:
     void drawMap(sf::RenderWindow& window);
 };
 
+enum TileType{GRASS};
+
+class Tile{
+    sf::Sprite shape;
+public:
+    Tile(int x,int y,TileType type);
+    void draw(sf::RenderWindow& window) const;
+    sf::Vector2f getPosition() const;
+    sf::FloatRect getBounds() const;
+    bool intersects(const Object& other) const;
+};
+class Game{
+private:
+    int row;
+    int col;
+public:
+    std::vector<std::vector<Tile*>> map;
+    Game(int row,int col);
+    void draw(sf::RenderWindow& window);
+};

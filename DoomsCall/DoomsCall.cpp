@@ -42,16 +42,20 @@ const sf::Uint8* Settings::geticon() const {
     return icon.getPixelsPtr();
 }
 
-enum AssetType {HUD};
+std::vector<sf::Texture> Assets::textures;
 void Assets::loadTextures() {
     sf::Texture image;
     if (!image.loadFromFile("resources/icons/HUD.png")) {
         std::cerr << "FAIL";
     }
     textures.push_back(image);
+    if (!image.loadFromFile("resources/Tiles.png")) {
+        std::cerr << "FAIL";
+    }
+    textures.push_back(image);
 }
-std::vector<sf::Texture>& Assets::getTexture() {
-    return textures;
+sf::Texture& Assets::getTexture(AssetType type) {
+    return textures[type];
 }
 
 Item::~Item() {
@@ -62,7 +66,13 @@ Item::~Item() {
 void Bandage::whenHeld(Player& player) {
 }
 void Bandage::whenUsed(Player& player) {
-    player.heal(1);
+    player.heal(25);
+}
+
+void Medkit::whenHeld(Player& player) {
+}
+void Medkit::whenUsed(Player& player) {
+    player.heal(150);
 }
 
 Inventory::Inventory() {
@@ -181,7 +191,7 @@ void DynamicObject::simulateMovement(std::vector<Object>& objects, float deltati
 }
 
 Player::Player(sf::Uint32 color,bool human = true):DynamicObject(color) {
-    inventory.addItem(new Bandage());
+    inventory.addItem(new Medkit());
     maxhealth = 200;
     health = 0;
     ishuman = human;
@@ -207,7 +217,10 @@ void Player::handleInput(std::vector<Object> & objects,float deltatime) {
     else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num8))inventory.setSelection(7);
     else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num9))inventory.setSelection(8);
 
-    if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && inventory.getItem())inventory.getItem()->whenUsed(*this);
+    if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && inventory.getItem()) {
+        inventory.getItem()->whenUsed(*this);
+        inventory.removeItem();
+    }
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
         velocity.value.x = -speed;
@@ -220,14 +233,14 @@ void Player::handleInput(std::vector<Object> & objects,float deltatime) {
         grounded = false;
     }
 }
-void Player::drawHUD(sf::RenderWindow& window, std::vector<sf::Texture>& textures,sf::Vector2f playerview) {
-    sf::Sprite selected(textures[HUD], sf::IntRect(34,0,32,32));
+void Player::drawHUD(sf::RenderWindow& window,sf::Vector2f playerview) {
+    sf::Sprite selected(Assets::getTexture(HUD), sf::IntRect(34,0,32,32));
     selected.setPosition(playerview + sf::Vector2f(-390, -290));
-    sf::Sprite unselected(textures[HUD], sf::IntRect(64, 0, 32, 32));
+    sf::Sprite unselected(Assets::getTexture(HUD), sf::IntRect(64, 0, 32, 32));
     unselected.setPosition(playerview + sf::Vector2f(-390, -290));
-    sf::Sprite filledbar(textures[HUD], sf::IntRect(0, 0, 32, 16));
+    sf::Sprite filledbar(Assets::getTexture(HUD), sf::IntRect(0, 0, 32, 16));
     filledbar.setPosition(playerview + sf::Vector2f(-390, -250));
-    sf::Sprite hpbar(textures[HUD], sf::IntRect(0, 16, 32, 16));
+    sf::Sprite hpbar(Assets::getTexture(HUD), sf::IntRect(0, 16, 32, 16));
     hpbar.setPosition(playerview + sf::Vector2f(-390, -250));
     for (int i = 0; i < 9; i++) {
         if (i == inventory.getSelection()) {
@@ -248,5 +261,42 @@ void Player::drawHUD(sf::RenderWindow& window, std::vector<sf::Texture>& texture
 void Map::drawMap(sf::RenderWindow& window) {
     for (auto& obj : objects) {
         obj.draw(window);
+    }
+}
+
+Tile::Tile(int x, int y,TileType type):shape(Assets::getTexture(TILES), sf::IntRect(32*type, 0, 32, 32)){
+    shape.setPosition(sf::Vector2f(32.f*x,32.f*y));
+}
+void Tile::draw(sf::RenderWindow& window) const {
+    window.draw(shape);
+}
+sf::Vector2f Tile::getPosition() const {
+    return shape.getPosition();
+}
+sf::FloatRect Tile::getBounds() const {
+    return shape.getGlobalBounds();
+}
+bool Tile::intersects(const Object& other) const {
+    return this->getBounds().intersects(other.getBounds());
+}
+
+
+Game::Game(int row,int col) {
+    this->row = row;
+    this->col = col;
+    for (int i = 0; i < row; i++) {
+        for (int j = 0; j < col; j++) {
+            if (j > col / 2)
+                map[i][j] = new Tile(i, j,GRASS);
+            else
+                map[i][j] = nullptr;
+        }
+    }
+}
+void Game::draw(sf::RenderWindow& window) {
+    for (int i = 0; i < row; i++) {
+        for (int j = 0; j < col; j++) {
+            map[i][j]->draw(window);
+        }
     }
 }
