@@ -82,6 +82,26 @@ public:
     ~Inventory();
 };
 
+enum TileType { GRASS };
+class Tile {
+    sf::Sprite shape;
+public:
+    Tile(int x, int y, TileType type);
+    void draw(sf::RenderWindow& window) const;
+    sf::Vector2f getPosition() const;
+    sf::FloatRect getBounds() const;
+    bool intersects(const Object& other) const;
+};
+class Game {
+private:
+    int row;
+    int col;
+public:
+    std::vector<std::vector<Tile*>> map;
+    Game(int row, int col);
+    void draw(sf::RenderWindow& window);
+};
+
 class Object {
 protected:
     sf::RectangleShape shape;
@@ -108,7 +128,7 @@ protected:
     bool grounded;
     bool hitceiling;
 public:
-    void simulateMovement(std::vector<Object>& objects, float deltatime);
+    void simulateMovement(std::vector<std::vector<Tile*>> map, float deltatime);
 };
 class Player : public DynamicObject {
 private:
@@ -120,32 +140,11 @@ private:
 public:
     Player(sf::Uint32 color,bool human);
     void heal(int amount);
-    void handleInput(std::vector<Object>& objects,float delta);
+    void handleInput();
     void drawHUD(sf::RenderWindow& window,sf::Vector2f playerview);
 };
 class Map {
 public:
     std::vector<Object> objects;
     void drawMap(sf::RenderWindow& window);
-};
-
-enum TileType{GRASS};
-
-class Tile{
-    sf::Sprite shape;
-public:
-    Tile(int x,int y,TileType type);
-    void draw(sf::RenderWindow& window) const;
-    sf::Vector2f getPosition() const;
-    sf::FloatRect getBounds() const;
-    bool intersects(const Object& other) const;
-};
-class Game{
-private:
-    int row;
-    int col;
-public:
-    std::vector<std::vector<Tile*>> map;
-    Game(int row,int col);
-    void draw(sf::RenderWindow& window);
 };

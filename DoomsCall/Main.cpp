@@ -10,8 +10,10 @@ int main() {
 
     Player player(0xFFFFFFFF, true); 
     player.setSize({ 50.f, 50.f });
-    player.setPosition({ 375.f, 275.f }); 
+    player.setPosition({ 375.f, -275.f }); 
+    
     Game game(128,128);
+    std::cout << "DONE";
     //Map map;
     sf::View camera(sf::FloatRect(0.f, 0.f, 800.f, 600.f));
     window.setView(camera);
@@ -42,11 +44,11 @@ int main() {
         }
 
         float delta = clock.restart().asSeconds();
-        player.handleInput(map.objects,delta);
-        player.simulateMovement(map.objects, delta);
+        player.handleInput();
+        player.simulateMovement(game.map, delta);
 
         window.clear(sf::Color::Black);
-        map.drawMap(window);
+        game.draw(window);
         camera.setCenter(player.getPosition());
         window.setView(camera);
         player.drawHUD(window, camera.getCenter());

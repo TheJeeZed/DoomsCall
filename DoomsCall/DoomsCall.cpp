@@ -100,12 +100,46 @@ void Inventory::removeItem() {
 Item* Inventory::getItem() {
     return inventory[selection];
 }
-
 Inventory::~Inventory() {
     for (int i = 0; i < 9; i++) {
         delete[] inventory[i];
     }
     delete[] inventory;
+}
+
+Tile::Tile(int x, int y, TileType type) :shape(Assets::getTexture(TILES), sf::IntRect(32 * type, 0, 32, 32)) {
+    shape.setPosition(sf::Vector2f(32.f * x, 32.f * y));
+}
+void Tile::draw(sf::RenderWindow& window) const {
+    window.draw(shape);
+}
+sf::Vector2f Tile::getPosition() const {
+    return shape.getPosition();
+}
+sf::FloatRect Tile::getBounds() const {
+    return shape.getGlobalBounds();
+}
+bool Tile::intersects(const Object& other) const {
+    return this->getBounds().intersects(other.getBounds());
+}
+
+Game::Game(int row, int col) {
+    this->row = row;
+    this->col = col;
+    map.resize(row);
+    for (int i = 0; i < row; i++) {
+        map[i].resize(col);
+        for (int j = 0; j < col; j++) {
+            map[i][j] = new Tile(i, j, GRASS);
+        }
+    }
+}
+void Game::draw(sf::RenderWindow& window) {
+    for (int i = 0; i < row; i++) {
+        for (int j = 0; j < col; j++) {
+            map[i][j]->draw(window);
+        }
+    }
 }
 
 Object::Object(sf::Uint32 color = 0, bool sol = false, const sf::Vector2f& position = { 0.f, 0.f }, const sf::Vector2f& size = { 50.f, 50.f}) {
@@ -147,7 +181,7 @@ Object(color,sol,position,size){
     grounded = false;
     hitceiling = false;
 }
-void DynamicObject::simulateMovement(std::vector<Object>& objects, float deltatime) {
+void DynamicObject::simulateMovement(std::vector<std::vector<Tile*>> map, float deltatime) {
     if (grounded || hitceiling) {
         velocity = phy::Velocity(velocity.value.x, 0);
     }
@@ -160,10 +194,13 @@ void DynamicObject::simulateMovement(std::vector<Object>& objects, float deltati
     sf::FloatRect futureBounds = getBounds();
     if (movement.x != 0.f) {
         futureBounds.left += movement.x;
-        for (auto& obj : objects) {
-            if (obj.issolid() && futureBounds.intersects(obj.getBounds())) {
-                movement.x = 0.f;
-                break;
+        for (int i = 0; i < map.size(); i++) {
+            for (int j = 0; j < map[0].size(); j++) {
+                if (futureBounds.intersects(map[i][j] -> getBounds())) {
+                    movement.x = 0.f;
+                    break;
+                }
+                if (movement.x == 0.f)break;
             }
         }
         shape.move(movement.x, 0.f);
@@ -171,19 +208,19 @@ void DynamicObject::simulateMovement(std::vector<Object>& objects, float deltati
     if (movement.y != 0.f) {
         futureBounds = getBounds(); 
         futureBounds.top += movement.y;
-        for (auto& obj : objects) {
-            if (obj.issolid() && futureBounds.intersects(obj.getBounds())) {
-                /*if (futureBounds.top + futureBounds.height > obj.getBounds().top) {
-                    grounded = true;
-                }*/
-                if (movement.y < 0.f) {
-                    hitceiling = true;
+        for (int i = 0; i < map.size(); i++) {
+            for (int j = 0; j < map[0].size(); j++) {
+                if (futureBounds.intersects(map[i][j]->getBounds())) {
+                    if (movement.y < 0.f) {
+                        hitceiling = true;
+                    }
+                    else {
+                        grounded = true;
+                    }
+                    movement.y = 0.f;
+                    break;
                 }
-                else {
-                    grounded = true;
-                }
-                movement.y = 0.f;
-                break;
+                if (movement.y == 0.f)break;
             }
         }
         shape.move(0.f, movement.y);
@@ -203,7 +240,7 @@ void Player::heal(int amount) {
         health = maxhealth;
     }
 }
-void Player::handleInput(std::vector<Object> & objects,float deltatime) {
+void Player::handleInput() {
 
     if (!ishuman) return;
 
@@ -264,39 +301,3 @@ void Map::drawMap(sf::RenderWindow& window) {
     }
 }
 
-Tile::Tile(int x, int y,TileType type):shape(Assets::getTexture(TILES), sf::IntRect(32*type, 0, 32, 32)){
-    shape.setPosition(sf::Vector2f(32.f*x,32.f*y));
-}
-void Tile::draw(sf::RenderWindow& window) const {
-    window.draw(shape);
-}
-sf::Vector2f Tile::getPosition() const {
-    return shape.getPosition();
-}
-sf::FloatRect Tile::getBounds() const {
-    return shape.getGlobalBounds();
-}
-bool Tile::intersects(const Object& other) const {
-    return this->getBounds().intersects(other.getBounds());
-}
-
-
-Game::Game(int row,int col) {
-    this->row = row;
-    this->col = col;
-    for (int i = 0; i < row; i++) {
-        for (int j = 0; j < col; j++) {
-            if (j > col / 2)
-                map[i][j] = new Tile(i, j,GRASS);
-            else
-                map[i][j] = nullptr;
-        }
-    }
-}
-void Game::draw(sf::RenderWindow& window) {
-    for (int i = 0; i < row; i++) {
-        for (int j = 0; j < col; j++) {
-            map[i][j]->draw(window);
-        }
-    }
-}
