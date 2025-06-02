@@ -84,7 +84,8 @@ public:
 
 enum TileType { GRASS };
 class Tile {
-    sf::Sprite shape;
+    sf::Sprite tile;
+    TileType type;
 public:
     Tile(int x, int y, TileType type);
     void draw(sf::RenderWindow& window) const;
@@ -99,14 +100,13 @@ private:
 public:
     std::vector<std::vector<Tile*>> map;
     Game(int row, int col);
-    void draw(sf::RenderWindow& window);
+    void draw(sf::RenderWindow& window,sf::View& playerview);
 };
 
 class Object {
 protected:
     sf::RectangleShape shape;
     bool solid;
-    
 public:
     Object(sf::Uint32 color,bool sol,const sf::Vector2f& position, const sf::Vector2f& size);
     void draw(sf::RenderWindow& window) const;
@@ -143,8 +143,4 @@ public:
     void handleInput();
     void drawHUD(sf::RenderWindow& window,sf::Vector2f playerview);
 };
-class Map {
-public:
-    std::vector<Object> objects;
-    void drawMap(sf::RenderWindow& window);
-};
+

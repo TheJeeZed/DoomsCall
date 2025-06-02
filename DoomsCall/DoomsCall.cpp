@@ -62,7 +62,6 @@ Item::~Item() {
 
 }
 
-
 void Bandage::whenHeld(Player& player) {
 }
 void Bandage::whenUsed(Player& player) {
@@ -107,17 +106,19 @@ Inventory::~Inventory() {
     delete[] inventory;
 }
 
-Tile::Tile(int x, int y, TileType type) :shape(Assets::getTexture(TILES), sf::IntRect(32 * type, 0, 32, 32)) {
-    shape.setPosition(sf::Vector2f(32.f * x, 32.f * y));
+Tile::Tile(int x, int y, TileType type) {
+    this->type = type;
+    tile = sf::Sprite(Assets::getTexture(TILES), sf::IntRect(32 * type, 0, 32, 32));
+    tile.setPosition(32.f * x, 32.f * y);
 }
 void Tile::draw(sf::RenderWindow& window) const {
-    window.draw(shape);
+    window.draw(tile);
 }
 sf::Vector2f Tile::getPosition() const {
-    return shape.getPosition();
+    return tile.getPosition();
 }
 sf::FloatRect Tile::getBounds() const {
-    return shape.getGlobalBounds();
+    return tile.getGlobalBounds();
 }
 bool Tile::intersects(const Object& other) const {
     return this->getBounds().intersects(other.getBounds());
@@ -134,9 +135,16 @@ Game::Game(int row, int col) {
         }
     }
 }
-void Game::draw(sf::RenderWindow& window) {
-    for (int i = 0; i < row; i++) {
-        for (int j = 0; j < col; j++) {
+void Game::draw(sf::RenderWindow& window, sf::View& playerview) {
+    sf::Vector2f center = playerview.getCenter();
+    sf::Vector2f size = playerview.getSize();
+    sf::FloatRect camera(center.x - size.x / 2, center.y - size.y / 2, size.x, size.y);
+    int left = std::max(std::floor(camera.left) / 32, 0.f);
+    int top = std::max(std::floor(camera.top) / 32,0.f);
+    int right = std::min(std::ceil((camera.left + camera.width)/32), static_cast<float>(row));
+    int bottom = std::min(std::ceil((camera.top + camera.height)/32), static_cast<float>(col));
+    for (int i = left; i < right; i++) {
+        for (int j = top; j < bottom; j++) {
             map[i][j]->draw(window);
         }
     }
@@ -293,11 +301,5 @@ void Player::drawHUD(sf::RenderWindow& window,sf::Vector2f playerview) {
     filledbar.scale(6 * (static_cast<float>(health) / maxhealth), 1);
     window.draw(hpbar);
     window.draw(filledbar);
-}
-
-void Map::drawMap(sf::RenderWindow& window) {
-    for (auto& obj : objects) {
-        obj.draw(window);
-    }
 }
 

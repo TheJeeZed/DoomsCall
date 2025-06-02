@@ -13,29 +13,8 @@ int main() {
     player.setPosition({ 375.f, -275.f }); 
     
     Game game(128,128);
-    std::cout << "DONE";
-    //Map map;
     sf::View camera(sf::FloatRect(0.f, 0.f, 800.f, 600.f));
     window.setView(camera);
-
-    //map.objects.emplace_back(0xFF888888, true, sf::Vector2f(0.f, 580.f), sf::Vector2f(2000.f, 20.f));  
-    //map.objects.emplace_back(0xFF888888, true, sf::Vector2f(0.f, 0.f), sf::Vector2f(2000.f, 20.f));    
-    //map.objects.emplace_back(0xFF888888, true, sf::Vector2f(0.f, 0.f), sf::Vector2f(20.f, 600.f));     
-    //map.objects.emplace_back(0xFF888888, true, sf::Vector2f(1980.f, 0.f), sf::Vector2f(20.f, 600.f));  
-
-    //map.objects.emplace_back(0xFFFF00FF, true, sf::Vector2f(100.f, 500.f), sf::Vector2f(100.f, 20.f));
-    //map.objects.emplace_back(0xFF00FFFF, true, sf::Vector2f(250.f, 450.f), sf::Vector2f(100.f, 20.f));
-    //map.objects.emplace_back(0xFF0000FF, true, sf::Vector2f(400.f, 400.f), sf::Vector2f(100.f, 20.f));
-    //map.objects.emplace_back(0xFFFFFFFF, true, sf::Vector2f(600.f, 350.f), sf::Vector2f(150.f, 20.f));
-    //map.objects.emplace_back(0xFFFF00FF, true, sf::Vector2f(850.f, 300.f), sf::Vector2f(100.f, 20.f));
-    //map.objects.emplace_back(0xFF00FFFF, true, sf::Vector2f(1050.f, 250.f), sf::Vector2f(150.f, 20.f));
-    //map.objects.emplace_back(0xFFFF99FF, true, sf::Vector2f(1300.f, 350.f), sf::Vector2f(100.f, 20.f));
-    //map.objects.emplace_back(0xFF99FF99, true, sf::Vector2f(1450.f, 300.f), sf::Vector2f(100.f, 20.f));
-    //map.objects.emplace_back(0xFF9999FF, true, sf::Vector2f(1600.f, 250.f), sf::Vector2f(100.f, 20.f));
-    //map.objects.emplace_back(0xFF444444, true, sf::Vector2f(1800.f, 200.f), sf::Vector2f(150.f, 20.f));
-
-
-
     while (window.isOpen()) {
         sf::Event event;
         while (window.pollEvent(event)) {
@@ -47,8 +26,10 @@ int main() {
         player.handleInput();
         player.simulateMovement(game.map, delta);
 
+
+        std::cout << static_cast<int>(1 / delta) << "FPS \n";
         window.clear(sf::Color::Black);
-        game.draw(window);
+        game.draw(window,camera);
         camera.setCenter(player.getPosition());
         window.setView(camera);
         player.drawHUD(window, camera.getCenter());
