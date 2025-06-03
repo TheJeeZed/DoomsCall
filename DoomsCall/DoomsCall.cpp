@@ -143,9 +143,9 @@ void Game::draw(sf::RenderWindow& window, sf::View& playerview) {
     int top = std::max(std::floor(camera.top) / 32,0.f);
     int right = std::min(std::ceil((camera.left + camera.width)/32), static_cast<float>(row));
     int bottom = std::min(std::ceil((camera.top + camera.height)/32), static_cast<float>(col));
-    for (int i = left; i < right; i++) {
-        for (int j = top; j < bottom; j++) {
-            map[i][j]->draw(window);
+    for (int i = top; i < bottom; i++) {
+        for (int j = left; j < right; j++) {
+            map[j][i]->draw(window);
         }
     }
 }
@@ -279,14 +279,14 @@ void Player::handleInput() {
     }
 }
 void Player::drawHUD(sf::RenderWindow& window,sf::Vector2f playerview) {
-    sf::Sprite selected(Assets::getTexture(HUD), sf::IntRect(34,0,32,32));
+    sf::Sprite selected(Assets::getTexture(HUD), sf::IntRect(32,0,40,40));
     selected.setPosition(playerview + sf::Vector2f(-390, -290));
-    sf::Sprite unselected(Assets::getTexture(HUD), sf::IntRect(64, 0, 32, 32));
+    sf::Sprite unselected(Assets::getTexture(HUD), sf::IntRect(72, 0, 40, 40));
     unselected.setPosition(playerview + sf::Vector2f(-390, -290));
     sf::Sprite filledbar(Assets::getTexture(HUD), sf::IntRect(0, 0, 32, 16));
-    filledbar.setPosition(playerview + sf::Vector2f(-390, -250));
+    filledbar.setPosition(playerview + sf::Vector2f(-390, -240));
     sf::Sprite hpbar(Assets::getTexture(HUD), sf::IntRect(0, 16, 32, 16));
-    hpbar.setPosition(playerview + sf::Vector2f(-390, -250));
+    hpbar.setPosition(playerview + sf::Vector2f(-390, -240));
     for (int i = 0; i < 9; i++) {
         if (i == inventory.getSelection()) {
             window.draw(selected);
@@ -294,8 +294,8 @@ void Player::drawHUD(sf::RenderWindow& window,sf::Vector2f playerview) {
         else {
             window.draw(unselected);
         }
-        selected.move(32, 0);
-        unselected.move(32, 0);
+        selected.move(40, 0);
+        unselected.move(40, 0);
     }
     hpbar.scale(6, 1);
     filledbar.scale(6 * (static_cast<float>(health) / maxhealth), 1);

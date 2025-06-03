@@ -12,7 +12,7 @@ int main() {
     player.setSize({ 50.f, 50.f });
     player.setPosition({ 375.f, -275.f }); 
     
-    Game game(128,128);
+    Game game(1024,1024);
     sf::View camera(sf::FloatRect(0.f, 0.f, 800.f, 600.f));
     window.setView(camera);
     while (window.isOpen()) {
@@ -26,12 +26,11 @@ int main() {
         player.handleInput();
         player.simulateMovement(game.map, delta);
 
-
         std::cout << static_cast<int>(1 / delta) << "FPS \n";
-        window.clear(sf::Color::Black);
-        game.draw(window,camera);
         camera.setCenter(player.getPosition());
         window.setView(camera);
+        window.clear(sf::Color::Black);
+        game.draw(window,camera);
         player.drawHUD(window, camera.getCenter());
         player.draw(window);
         window.display();
