@@ -55,7 +55,7 @@ void Assets::loadTextures() {
     textures.push_back(image);
 }
 sf::Texture& Assets::getTexture(AssetType type) {
-    return textures[type];
+    return textures[static_cast<int>(type)];
 }
 
 Item::~Item() {
@@ -108,7 +108,7 @@ Inventory::~Inventory() {
 
 Tile::Tile(int x, int y, TileType type) {
     this->type = type;
-    tile = sf::Sprite(Assets::getTexture(TILES), sf::IntRect(32 * type, 0, 32, 32));
+    tile = sf::Sprite(Assets::getTexture(AssetType::TILES), sf::IntRect(32 * static_cast<int>(type), 0, 32, 32));
     tile.setPosition(32.f * x, 32.f * y);
 }
 void Tile::draw(sf::RenderWindow& window) const {
@@ -131,7 +131,7 @@ Game::Game(int row, int col) {
     for (int i = 0; i < row; i++) {
         map[i].resize(col);
         for (int j = 0; j < col; j++) {
-            map[i][j] = new Tile(i, j, GRASS);
+            map[i][j] = new Tile(i, j, TileType::GRASS);
         }
     }
 }
@@ -204,7 +204,7 @@ void DynamicObject::simulateMovement(std::vector<std::vector<Tile*>> map, float 
         futureBounds.left += movement.x;
         for (int i = 0; i < map.size(); i++) {
             for (int j = 0; j < map[0].size(); j++) {
-                if (futureBounds.intersects(map[i][j] -> getBounds())) {
+                if (futureBounds.intersects(sf::FloatRect(32 * i, 32 * j, 32, 32))) {
                     movement.x = 0.f;
                     break;
                 }
@@ -218,7 +218,7 @@ void DynamicObject::simulateMovement(std::vector<std::vector<Tile*>> map, float 
         futureBounds.top += movement.y;
         for (int i = 0; i < map.size(); i++) {
             for (int j = 0; j < map[0].size(); j++) {
-                if (futureBounds.intersects(map[i][j]->getBounds())) {
+                if (futureBounds.intersects(sf::FloatRect(32 * i, 32 * j, 32, 32))) {
                     if (movement.y < 0.f) {
                         hitceiling = true;
                     }
@@ -237,16 +237,26 @@ void DynamicObject::simulateMovement(std::vector<std::vector<Tile*>> map, float 
 
 Player::Player(sf::Uint32 color,bool human = true):DynamicObject(color) {
     inventory.addItem(new Medkit());
-    maxhealth = 200;
-    health = 0;
+    maxHP = 200;
+    HP = 0;
     ishuman = human;
     speed = 500.f;
+    camera = sf::View(sf::FloatRect(0.f, 0.f, 800.f, 600.f));
 }
 void Player::heal(int amount) {
-    health += amount;
-    if (health > maxhealth) {
-        health = maxhealth;
+    HP += amount;
+    if (HP > maxHP) {
+        HP = maxHP;
     }
+}
+int Player::getHP() {
+    return HP;
+}
+int Player::getMaxHP() {
+    return maxHP;
+}
+Inventory& Player::getInventory() {
+    return inventory;
 }
 void Player::handleInput() {
 
@@ -278,17 +288,32 @@ void Player::handleInput() {
         grounded = false;
     }
 }
-void Player::drawHUD(sf::RenderWindow& window,sf::Vector2f playerview) {
-    sf::Sprite selected(Assets::getTexture(HUD), sf::IntRect(32,0,40,40));
-    selected.setPosition(playerview + sf::Vector2f(-390, -290));
-    sf::Sprite unselected(Assets::getTexture(HUD), sf::IntRect(72, 0, 40, 40));
-    unselected.setPosition(playerview + sf::Vector2f(-390, -290));
-    sf::Sprite filledbar(Assets::getTexture(HUD), sf::IntRect(0, 0, 32, 16));
-    filledbar.setPosition(playerview + sf::Vector2f(-390, -240));
-    sf::Sprite hpbar(Assets::getTexture(HUD), sf::IntRect(0, 16, 32, 16));
-    hpbar.setPosition(playerview + sf::Vector2f(-390, -240));
+void Player::setCameraPosition() {
+    camera.setCenter(this->getPosition());
+}
+void Player::focus(sf::RenderWindow& window) {
+    window.setView(camera);
+}
+sf::View& Player::getCamera() {
+    return camera;
+}
+
+HUD::HUD() {
+    selected = sf::Sprite(Assets::getTexture(AssetType::HUD), sf::IntRect(32, 0, 40, 40));
+    unselected = sf::Sprite(Assets::getTexture(AssetType::HUD), sf::IntRect(72, 0, 40, 40));
+    filledbar = sf::Sprite(Assets::getTexture(AssetType::HUD), sf::IntRect(0, 0, 32, 16));
+    hpbar = sf::Sprite(Assets::getTexture(AssetType::HUD), sf::IntRect(0, 16, 32, 16));
+    hpbar.scale(6, 1);
+    
+}
+void HUD::draw(sf::RenderWindow& window, Player& player) {
+    filledbar.setScale(1, 1);
+    selected.setPosition(player.getCamera().getCenter() + sf::Vector2f(-390, -290));
+    unselected.setPosition(player.getCamera().getCenter() + sf::Vector2f(-390, -290));
+    filledbar.setPosition(player.getCamera().getCenter() + sf::Vector2f(-390, -240));
+    hpbar.setPosition(player.getCamera().getCenter() + sf::Vector2f(-390, -240));
     for (int i = 0; i < 9; i++) {
-        if (i == inventory.getSelection()) {
+        if (i == player.getInventory().getSelection()) {
             window.draw(selected);
         }
         else {
@@ -297,8 +322,7 @@ void Player::drawHUD(sf::RenderWindow& window,sf::Vector2f playerview) {
         selected.move(40, 0);
         unselected.move(40, 0);
     }
-    hpbar.scale(6, 1);
-    filledbar.scale(6 * (static_cast<float>(health) / maxhealth), 1);
+    filledbar.scale(6 * (static_cast<float>(player.getHP()) / player.getMaxHP()), 1);
     window.draw(hpbar);
     window.draw(filledbar);
 }

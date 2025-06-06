@@ -3,6 +3,7 @@
 int main() {
     Settings s;
     Assets::loadTextures();
+    HUD hud;
     sf::RenderWindow window(sf::VideoMode(800, 600), "DOOMSCALL");
     window.setFramerateLimit(s.getmaxFPS());
     sf::Clock clock;
@@ -13,8 +14,7 @@ int main() {
     player.setPosition({ 375.f, -275.f }); 
     
     Game game(1024,1024);
-    sf::View camera(sf::FloatRect(0.f, 0.f, 800.f, 600.f));
-    window.setView(camera);
+    player.focus(window);
     while (window.isOpen()) {
         sf::Event event;
         while (window.pollEvent(event)) {
@@ -27,11 +27,11 @@ int main() {
         player.simulateMovement(game.map, delta);
 
         std::cout << static_cast<int>(1 / delta) << "FPS \n";
-        camera.setCenter(player.getPosition());
-        window.setView(camera);
+        player.setCameraPosition();
+        player.focus(window);
         window.clear(sf::Color::Black);
-        game.draw(window,camera);
-        player.drawHUD(window, camera.getCenter());
+        game.draw(window,player.getCamera());
+        hud.draw(window,player);
         player.draw(window);
         window.display();
     }

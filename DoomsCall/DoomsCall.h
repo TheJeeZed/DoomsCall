@@ -12,7 +12,6 @@ class Inventory;
 class Object;
 class DynamicObject;
 class Player;
-class Map;
 
 namespace phy {
     struct Velocity {
@@ -27,8 +26,8 @@ namespace phy {
     };
 }
 
-
-enum AssetType { HUD,TILES};
+enum class TileType { GRASS };
+enum class AssetType { HUD,TILES};
 class Settings {
     sf::Image icon;
     int length;
@@ -82,7 +81,7 @@ public:
     ~Inventory();
 };
 
-enum TileType { GRASS };
+
 class Tile {
     sf::Sprite tile;
     TileType type;
@@ -133,14 +132,31 @@ public:
 class Player : public DynamicObject {
 private:
     bool ishuman;
-    int maxhealth;
-    int health;
+    int maxHP;
+    int HP;
     float speed;
     Inventory inventory;
+    sf::View camera;
 public:
     Player(sf::Uint32 color,bool human);
     void heal(int amount);
+    int getHP();
+    int getMaxHP();
+    Inventory& getInventory();
     void handleInput();
+    void setCameraPosition();
+    void focus(sf::RenderWindow& window);
+    sf::View& getCamera();
     void drawHUD(sf::RenderWindow& window,sf::Vector2f playerview);
+};
+
+class HUD {
+    sf::Sprite selected;
+    sf::Sprite unselected;
+    sf::Sprite filledbar;
+    sf::Sprite hpbar;
+public:
+    HUD();
+    void draw(sf::RenderWindow& window,Player& player);
 };
 
