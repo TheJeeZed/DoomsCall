@@ -53,6 +53,10 @@ void Assets::loadTextures() {
         std::cerr << "FAIL";
     }
     textures.push_back(image);
+    if (!image.loadFromFile("resources/Items.png")) {
+        std::cerr << "FAIL";
+    }
+    textures.push_back(image);
 }
 sf::Texture& Assets::getTexture(AssetType type) {
     return textures[static_cast<int>(type)];
@@ -62,20 +66,27 @@ Item::~Item() {
 
 }
 
-void Bandage::whenHeld(Player& player) {
-}
-void Bandage::whenUsed(Player& player) {
-    player.heal(25);
-}
-
 void Medkit::whenHeld(Player& player) {
 }
 void Medkit::whenUsed(Player& player) {
     player.heal(150);
 }
+ItemType Medkit::getType() {
+    return MEDKIT;
+}
+
+void Bandage::whenHeld(Player& player) {
+}
+void Bandage::whenUsed(Player& player) {
+    player.heal(25);
+}
+ItemType Bandage::getType() {
+    return BANDAGE;
+}
+
 
 Inventory::Inventory() {
-    inventory = new Item * [9];
+    inventory.resize(9);
     for (int i = 0; i < 9; i++) {
         inventory[i] = nullptr;
     }
@@ -99,11 +110,13 @@ void Inventory::removeItem() {
 Item* Inventory::getItem() {
     return inventory[selection];
 }
+Item* Inventory::getItem(int select) {
+    return inventory[select];
+}
 Inventory::~Inventory() {
     for (int i = 0; i < 9; i++) {
         delete[] inventory[i];
     }
-    delete[] inventory;
 }
 
 Tile::Tile(TileType type) {
@@ -159,9 +172,6 @@ sf::Vector2f Object::getSize() const {
 }
 sf::FloatRect Object::getBounds() const {
     return shape.getGlobalBounds();
-}
-bool Object::intersects(const Object& other) const {
-    return this->getBounds().intersects(other.getBounds());
 }
 
 DynamicObject::DynamicObject(sf::Uint32 color, const sf::Vector2f& position = { 0.f, 0.f }, const sf::Vector2f& size = { 50.f, 50.f }):
@@ -279,6 +289,11 @@ HUDRender::HUDRender() {
     unselected = sf::Sprite(Assets::getTexture(AssetType::HUD), sf::IntRect(72, 0, 40, 40));
     filledbar = sf::Sprite(Assets::getTexture(AssetType::HUD), sf::IntRect(0, 0, 32, 16));
     hpbar = sf::Sprite(Assets::getTexture(AssetType::HUD), sf::IntRect(0, 16, 32, 16));
+    for (int i = 0; i < 2; i++)
+    {
+        items.push_back(sf::IntRect(32 * i, 0, 32, 32));
+    }
+    s.setTexture(Assets::getTexture(ITEMS));
     hpbar.scale(6, 1);
 }
 void HUDRender::draw(sf::RenderWindow& window, Player& player) {
@@ -293,6 +308,12 @@ void HUDRender::draw(sf::RenderWindow& window, Player& player) {
         }
         else {
             window.draw(unselected);
+        }
+        if (player.getInventory().getItem(i)) {
+            ItemType t = player.getInventory().getItem(i)->getType();
+            s.setPosition(unselected.getPosition()+sf::Vector2f(4,4));
+            s.setTextureRect(items[t]);
+            window.draw(s);
         }
         selected.move(40, 0);
         unselected.move(40, 0);
@@ -328,4 +349,3 @@ void GameRender::draw(sf::RenderWindow& window, Player& player,Game& game) {
         }
     }
 }
-

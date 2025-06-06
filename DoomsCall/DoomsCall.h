@@ -26,8 +26,9 @@ namespace phy {
     };
 }
 
-enum TileType{ GRASS,SPIKE };
-enum AssetType { HUD,TILES};
+enum TileType { GRASS,SPIKE };
+enum ItemType { MEDKIT,BANDAGE};
+enum AssetType { HUD,TILES,ITEMS};
 class Settings {
     sf::Image icon;
     int length;
@@ -55,22 +56,25 @@ protected:
 public:
     virtual void whenHeld(Player& player) = 0;
     virtual void whenUsed(Player& player) = 0;
+    virtual ItemType getType() = 0;
     virtual ~Item() = 0;
+};
+class Medkit :public Item {
+public:
+    void whenHeld(Player& player);
+    void whenUsed(Player& player);
+    ItemType getType();
 };
 class Bandage :public Item {
 public:
     void whenHeld(Player& player);
     void whenUsed(Player& player);
-};
-class Medkit :public Item {
-public:
-    void whenHeld(Player & player);
-    void whenUsed(Player & player);
+    ItemType getType();
 };
 class Inventory {
 private:
     int selection;
-    Item** inventory;
+    std::vector<Item*> inventory;
 public:
     Inventory();
     void setSelection(int select);
@@ -78,9 +82,9 @@ public:
     void addItem(Item* item);
     void removeItem();
     Item* getItem();
+    Item* getItem(int select);
     ~Inventory();
 };
-
 
 class Tile {
     TileType type;
@@ -111,7 +115,6 @@ public:
     void setSize(const sf::Vector2f& size);
     sf::Vector2f getSize() const;
     sf::FloatRect getBounds() const;
-    bool intersects(const Object& other) const;
 };
 class DynamicObject:public Object {
 protected:
@@ -147,6 +150,8 @@ class HUDRender {
     sf::Sprite unselected;
     sf::Sprite filledbar;
     sf::Sprite hpbar;
+    std::vector<sf::IntRect> items;
+    sf::Sprite s;
 public:
     HUDRender();
     void draw(sf::RenderWindow& window,Player& player);
@@ -158,4 +163,3 @@ public:
     GameRender();
     void draw(sf::RenderWindow& window, Player& player,Game& game);
 };
-
