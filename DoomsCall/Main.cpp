@@ -14,7 +14,7 @@ int main() {
     player.setSize({ 50.f, 50.f });
     player.setPosition({ 375.f, -275.f }); 
     
-    Game game(256,256);
+    Game game(1024,1024);
     player.focus(window);
     while (window.isOpen()) {
         sf::Event event;

@@ -26,7 +26,7 @@ namespace phy {
     };
 }
 
-enum TileType{ GRASS };
+enum TileType{ GRASS,SPIKE };
 enum AssetType { HUD,TILES};
 class Settings {
     sf::Image icon;

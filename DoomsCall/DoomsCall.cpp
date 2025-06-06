@@ -120,10 +120,10 @@ Game::Game(int row, int col) {
     for (int i = 0; i < row; i++) {
         map[i].resize(col);
         for (int j = 0; j < col; j++) {
-            if (i + j > col)
+            if (i % 2)
                 map[i][j] = new Tile(TileType::GRASS);
             else
-                map[i][j] = nullptr;
+                map[i][j] = new Tile(TileType::SPIKE);
         }
     }
 }
@@ -303,7 +303,7 @@ void HUDRender::draw(sf::RenderWindow& window, Player& player) {
 }
 
 GameRender::GameRender() {
-    for (int i = 0; i < 1; i++)
+    for (int i = 0; i < 2; i++)
     {
         tiles.push_back(sf::IntRect(32*i,0,32,32));
     }
