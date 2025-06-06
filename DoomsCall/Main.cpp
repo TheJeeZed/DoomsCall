@@ -3,17 +3,18 @@
 int main() {
     Settings s;
     Assets::loadTextures();
-    HUD hud;
+    HUDRender hud;
+    GameRender gam;
     sf::RenderWindow window(sf::VideoMode(800, 600), "DOOMSCALL");
     window.setFramerateLimit(s.getmaxFPS());
     sf::Clock clock;
     window.setIcon(32,32,s.geticon());
 
-    Player player(0xFFFFFFFF, true); 
+    Player player(0xFFFFFFFF); 
     player.setSize({ 50.f, 50.f });
     player.setPosition({ 375.f, -275.f }); 
     
-    Game game(1024,1024);
+    Game game(256,256);
     player.focus(window);
     while (window.isOpen()) {
         sf::Event event;
@@ -30,7 +31,7 @@ int main() {
         player.setCameraPosition();
         player.focus(window);
         window.clear(sf::Color::Black);
-        game.draw(window,player.getCamera());
+        gam.draw(window, player, game);
         hud.draw(window,player);
         player.draw(window);
         window.display();

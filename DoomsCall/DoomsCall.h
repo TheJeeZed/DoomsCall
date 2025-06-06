@@ -26,8 +26,8 @@ namespace phy {
     };
 }
 
-enum class TileType { GRASS };
-enum class AssetType { HUD,TILES};
+enum TileType{ GRASS };
+enum AssetType { HUD,TILES};
 class Settings {
     sf::Image icon;
     int length;
@@ -83,14 +83,10 @@ public:
 
 
 class Tile {
-    sf::Sprite tile;
     TileType type;
 public:
-    Tile(int x, int y, TileType type);
-    void draw(sf::RenderWindow& window) const;
-    sf::Vector2f getPosition() const;
-    sf::FloatRect getBounds() const;
-    bool intersects(const Object& other) const;
+    Tile(TileType type);
+    TileType getType();
 };
 class Game {
 private:
@@ -99,15 +95,15 @@ private:
 public:
     std::vector<std::vector<Tile*>> map;
     Game(int row, int col);
-    void draw(sf::RenderWindow& window,sf::View& playerview);
+    int getRow();
+    int getCol();
 };
 
 class Object {
 protected:
     sf::RectangleShape shape;
-    bool solid;
 public:
-    Object(sf::Uint32 color,bool sol,const sf::Vector2f& position, const sf::Vector2f& size);
+    Object(sf::Uint32 color,const sf::Vector2f& position, const sf::Vector2f& size);
     void draw(sf::RenderWindow& window) const;
     void setPosition(const sf::Vector2f& position);
     void setPosition(float x, float y);
@@ -116,29 +112,26 @@ public:
     sf::Vector2f getSize() const;
     sf::FloatRect getBounds() const;
     bool intersects(const Object& other) const;
-    bool issolid();
-    
 };
 class DynamicObject:public Object {
 protected:
-    DynamicObject(sf::Uint32 color, bool sol, const sf::Vector2f& position, const sf::Vector2f& size);
+    DynamicObject(sf::Uint32 color, const sf::Vector2f& position, const sf::Vector2f& size);
     phy::Velocity velocity;
     phy::Acceleration acceleration;
     bool grounded;
     bool hitceiling;
 public:
-    void simulateMovement(std::vector<std::vector<Tile*>> map, float deltatime);
+    void simulateMovement(std::vector<std::vector<Tile*>>& map, float deltatime);
 };
 class Player : public DynamicObject {
 private:
-    bool ishuman;
     int maxHP;
     int HP;
     float speed;
     Inventory inventory;
     sf::View camera;
 public:
-    Player(sf::Uint32 color,bool human);
+    Player(sf::Uint32 color);
     void heal(int amount);
     int getHP();
     int getMaxHP();
@@ -147,16 +140,22 @@ public:
     void setCameraPosition();
     void focus(sf::RenderWindow& window);
     sf::View& getCamera();
-    void drawHUD(sf::RenderWindow& window,sf::Vector2f playerview);
 };
 
-class HUD {
+class HUDRender {
     sf::Sprite selected;
     sf::Sprite unselected;
     sf::Sprite filledbar;
     sf::Sprite hpbar;
 public:
-    HUD();
+    HUDRender();
     void draw(sf::RenderWindow& window,Player& player);
+};
+class GameRender {
+    std::vector<sf::IntRect> tiles;
+    sf::Sprite s;
+public:
+    GameRender();
+    void draw(sf::RenderWindow& window, Player& player,Game& game);
 };
 
