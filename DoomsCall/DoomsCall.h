@@ -1,54 +1,21 @@
 #pragma once
 
-#include <SFML/Graphics.hpp>
-#include <fstream>
-#include <vector>
-#include <iostream>
+#include <chrono>
 
-class Settings;
-class Assets;
+#include "Tiles.h"
+#include "Physics.h"
+#include "Settings.h"
+
 class Item;
 class Inventory;
 class Object;
 class DynamicObject;
 class Player;
+class Screen;
+class ScreenStack;
 
-namespace phy {
-    struct Velocity {
-        sf::Vector2f value;
-        Velocity(float x, float y);
-        void apply(sf::Vector2f& position, float delta);
-    };
-    struct Acceleration {
-        sf::Vector2f value;
-        Acceleration(float x, float y);
-        void apply(Velocity& velocity, float delta);
-    };
-}
-
-enum TileType { GRASS,SPIKE };
 enum ItemType { MEDKIT,BANDAGE};
-enum AssetType { HUD,TILES,ITEMS};
-class Settings {
-    sf::Image icon;
-    int length;
-    int width;
-    int maxFPS;
-public:
-    Settings();
-    int getlength() const;
-    int getwidth() const;
-    int getmaxFPS() const;
-    
-    const sf::Uint8* geticon() const;
-};
-class Assets{
-private:
-    static std::vector<sf::Texture> textures;
-public:
-    static void loadTextures();
-    static sf::Texture& getTexture(AssetType type);
-};
+enum ButtonType {ENTERGAME,OPTION};
 
 class Item {
 protected:
@@ -86,12 +53,6 @@ public:
     ~Inventory();
 };
 
-class Tile {
-    TileType type;
-public:
-    Tile(TileType type);
-    TileType getType();
-};
 class Game {
 private:
     int row;
@@ -119,8 +80,8 @@ public:
 class DynamicObject:public Object {
 protected:
     DynamicObject(sf::Uint32 color, const sf::Vector2f& position, const sf::Vector2f& size);
-    phy::Velocity velocity;
-    phy::Acceleration acceleration;
+    Velocity velocity;
+    Acceleration acceleration;
     bool grounded;
     bool hitceiling;
 public:
@@ -145,6 +106,40 @@ public:
     sf::View& getCamera();
 };
 
+class EnterGameButton{
+    sf::Sprite button[3];
+public:
+    EnterGameButton();
+    void whenClicked();
+    void render();
+};
+class Screen {
+public:
+    virtual void input() = 0;
+    virtual void update() = 0;
+    virtual void render(sf::RenderWindow& window) = 0;
+    virtual bool isSeeThrough() = 0;
+    virtual bool isWorkThrough() = 0;
+};
+class MainMenu:public Screen {
+    EnterGameButton enter;
+public:
+    void input();
+    void update();   
+    void render(sf::RenderWindow& window);
+    bool isSeeThrough();
+    bool isWorkThrough();
+};
+class ScreenStack {
+    static std::vector<Screen*> screens;
+public:
+    void push_screen();
+    void pop_screen();
+    void input();
+    void update();
+    void render();
+};
+
 class HUDRender {
     sf::Sprite selected;
     sf::Sprite unselected;
@@ -162,4 +157,10 @@ class GameRender {
 public:
     GameRender();
     void draw(sf::RenderWindow& window, Player& player,Game& game);
+};
+class Renderer {
+    HUDRender hudrender;
+    GameRender gamerender;
+public:
+    void draw(sf::RenderWindow& window, Player& player, Game& game);
 };

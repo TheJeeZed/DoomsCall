@@ -1,66 +1,6 @@
 #include "DoomsCall.h"
 
-phy::Acceleration gravity(0, 800.f);
-
-phy::Velocity::Velocity(float x = 0, float y = 0) : value(x, y) {}
-void phy::Velocity::apply(sf::Vector2f& position, float delta) {
-    position += value * delta;
-}
-
-phy::Acceleration::Acceleration(float x = 0, float y = 0) : value(x, y) {}
-void phy::Acceleration::apply(Velocity& velocity, float delta) {
-    velocity.value += value * delta;
-}
-
-Settings::Settings() {
-    if (!icon.loadFromFile("DoomsCall.ico")) {
-        std::cerr << "FAIL";
-    }
-	length = 0;
-	width = 0;
-    maxFPS = 120;
-	std::ifstream fin("Option.txt");
-	if (!fin) {
-        std::cout << "Fail";
-		return;
-	}
-	fin >> length;
-	fin >> width;
-    fin >> maxFPS;
-    fin.close();
-}
-int Settings::getlength() const {
-	return length;
-}
-int Settings::getwidth() const {
-	return width;
-}
-int Settings::getmaxFPS() const {
-    return maxFPS;
-}
-const sf::Uint8* Settings::geticon() const {
-    return icon.getPixelsPtr();
-}
-
-std::vector<sf::Texture> Assets::textures;
-void Assets::loadTextures() {
-    sf::Texture image;
-    if (!image.loadFromFile("resources/icons/HUD.png")) {
-        std::cerr << "FAIL";
-    }
-    textures.push_back(image);
-    if (!image.loadFromFile("resources/Tiles.png")) {
-        std::cerr << "FAIL";
-    }
-    textures.push_back(image);
-    if (!image.loadFromFile("resources/Items.png")) {
-        std::cerr << "FAIL";
-    }
-    textures.push_back(image);
-}
-sf::Texture& Assets::getTexture(AssetType type) {
-    return textures[static_cast<int>(type)];
-}
+Acceleration gravity(0, 800.f);
 
 Item::~Item() {
 
@@ -83,7 +23,6 @@ void Bandage::whenUsed(Player& player) {
 ItemType Bandage::getType() {
     return BANDAGE;
 }
-
 
 Inventory::Inventory() {
     inventory.resize(9);
@@ -119,13 +58,6 @@ Inventory::~Inventory() {
     }
 }
 
-Tile::Tile(TileType type) {
-    this->type = type;
-}
-TileType Tile::getType() {
-    return type;
-}
-
 Game::Game(int row, int col) {
     this->row = row;
     this->col = col;
@@ -134,9 +66,9 @@ Game::Game(int row, int col) {
         map[i].resize(col);
         for (int j = 0; j < col; j++) {
             if (i % 2)
-                map[i][j] = new Tile(TileType::GRASS);
+                map[i][j] = new Grass;
             else
-                map[i][j] = new Tile(TileType::SPIKE);
+                map[i][j] = new Spike;
         }
     }
 }
@@ -181,7 +113,7 @@ Object(color,position,size){
 }
 void DynamicObject::simulateMovement(std::vector<std::vector<Tile*>>& map, float deltatime) {
     if (grounded || hitceiling) {
-        velocity = phy::Velocity(velocity.value.x, 0);
+        velocity = Velocity(velocity.value.x, 0);
     }
     else {
         gravity.apply(velocity, deltatime);
@@ -269,7 +201,7 @@ void Player::handleInput() {
         velocity.value.x = speed;
     else
         velocity.value.x = 0.f; 
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) && grounded && !hitceiling) {
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) && grounded && !hitceiling) {
         velocity.value.y = -speed * 1;  
         grounded = false;
     }
@@ -282,6 +214,33 @@ void Player::focus(sf::RenderWindow& window) {
 }
 sf::View& Player::getCamera() {
     return camera;
+}
+
+EnterGameButton::EnterGameButton() {
+    button[0] = sf::Sprite(Assets::getTexture(BUTTONS),sf::IntRect(0,0,32,32));
+    button[1] = sf::Sprite(Assets::getTexture(BUTTONS), sf::IntRect(32, 0, 32, 32));
+    button[2] = sf::Sprite(Assets::getTexture(BUTTONS), sf::IntRect(64, 0, 32, 32));
+    button[0].setPosition(400, 300);
+    button[1].setPosition(432, 300);
+    button[2].setPosition(464, 300);
+}
+void EnterGameButton::whenClicked() {
+    
+}
+
+void MainMenu::input() {
+
+}
+void MainMenu::update() {
+
+}
+void MainMenu::render(sf::RenderWindow& window) {
+}
+bool MainMenu::isSeeThrough() {
+    return false;
+}
+bool MainMenu::isWorkThrough() {
+    return false;
 }
 
 HUDRender::HUDRender() {
@@ -348,4 +307,14 @@ void GameRender::draw(sf::RenderWindow& window, Player& player,Game& game) {
             }
         }
     }
+}
+
+void Renderer::draw(sf::RenderWindow& window, Player& player, Game& game) {
+    window.clear(sf::Color::Black);
+    player.setCameraPosition();
+    player.focus(window);
+    gamerender.draw(window, player, game);
+    hudrender.draw(window,player);
+    player.draw(window);
+    window.display();
 }
