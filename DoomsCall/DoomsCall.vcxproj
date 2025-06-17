@@ -136,12 +136,14 @@
     <ClCompile Include="DoomsCall.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Physics.cpp" />
+    <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Settings.cpp" />
     <ClCompile Include="Tiles.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DoomsCall.h" />
     <ClInclude Include="Physics.h" />
+    <ClInclude Include="Renderer.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="Tiles.h" />
   </ItemGroup>

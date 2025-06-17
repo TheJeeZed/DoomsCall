@@ -11,11 +11,8 @@ class Inventory;
 class Object;
 class DynamicObject;
 class Player;
-class Screen;
-class ScreenStack;
 
 enum ItemType { MEDKIT,BANDAGE};
-enum ButtonType {ENTERGAME,OPTION};
 
 class Item {
 protected:
@@ -79,13 +76,17 @@ public:
 };
 class DynamicObject:public Object {
 protected:
-    DynamicObject(sf::Uint32 color, const sf::Vector2f& position, const sf::Vector2f& size);
     Velocity velocity;
     Acceleration acceleration;
     bool grounded;
     bool hitceiling;
+    sf::View camera;
 public:
-    void simulateMovement(std::vector<std::vector<Tile*>>& map, float deltatime);
+    DynamicObject(sf::Uint32 color, const sf::Vector2f& position, const sf::Vector2f& size);
+    void simulateMovement(Game& game, float deltatime);
+    void setCameraPosition();
+    void focus(sf::RenderWindow& window);
+    sf::View& getCamera();
 };
 class Player : public DynamicObject {
 private:
@@ -93,7 +94,6 @@ private:
     int HP;
     float speed;
     Inventory inventory;
-    sf::View camera;
 public:
     Player(sf::Uint32 color);
     void heal(int amount);
@@ -101,66 +101,5 @@ public:
     int getMaxHP();
     Inventory& getInventory();
     void handleInput();
-    void setCameraPosition();
-    void focus(sf::RenderWindow& window);
-    sf::View& getCamera();
 };
 
-class EnterGameButton{
-    sf::Sprite button[3];
-public:
-    EnterGameButton();
-    void whenClicked();
-    void render();
-};
-class Screen {
-public:
-    virtual void input() = 0;
-    virtual void update() = 0;
-    virtual void render(sf::RenderWindow& window) = 0;
-    virtual bool isSeeThrough() = 0;
-    virtual bool isWorkThrough() = 0;
-};
-class MainMenu:public Screen {
-    EnterGameButton enter;
-public:
-    void input();
-    void update();   
-    void render(sf::RenderWindow& window);
-    bool isSeeThrough();
-    bool isWorkThrough();
-};
-class ScreenStack {
-    static std::vector<Screen*> screens;
-public:
-    void push_screen();
-    void pop_screen();
-    void input();
-    void update();
-    void render();
-};
-
-class HUDRender {
-    sf::Sprite selected;
-    sf::Sprite unselected;
-    sf::Sprite filledbar;
-    sf::Sprite hpbar;
-    std::vector<sf::IntRect> items;
-    sf::Sprite s;
-public:
-    HUDRender();
-    void draw(sf::RenderWindow& window,Player& player);
-};
-class GameRender {
-    std::vector<sf::IntRect> tiles;
-    sf::Sprite s;
-public:
-    GameRender();
-    void draw(sf::RenderWindow& window, Player& player,Game& game);
-};
-class Renderer {
-    HUDRender hudrender;
-    GameRender gamerender;
-public:
-    void draw(sf::RenderWindow& window, Player& player, Game& game);
-};

@@ -1,0 +1,92 @@
+#include "Renderer.h"
+
+HUDRender::HUDRender() {
+    selected = sf::Sprite(Assets::getTexture(AssetType::HUD), sf::IntRect(32, 0, 40, 40));
+    unselected = sf::Sprite(Assets::getTexture(AssetType::HUD), sf::IntRect(72, 0, 40, 40));
+    filledbar = sf::Sprite(Assets::getTexture(AssetType::HUD), sf::IntRect(0, 0, 32, 16));
+    hpbar = sf::Sprite(Assets::getTexture(AssetType::HUD), sf::IntRect(0, 16, 32, 16));
+    for (int i = 0; i < 2; i++)
+    {
+        items.push_back(sf::IntRect(32 * i, 0, 32, 32));
+    }
+    s.setTexture(Assets::getTexture(ITEMS));
+    hpbar.scale(6, 1);
+}
+void HUDRender::draw(sf::RenderWindow& window, Player& player) {
+    filledbar.setScale(1, 1);
+    selected.setPosition(player.getCamera().getCenter() + sf::Vector2f(-390, -290));
+    unselected.setPosition(player.getCamera().getCenter() + sf::Vector2f(-390, -290));
+    filledbar.setPosition(player.getCamera().getCenter() + sf::Vector2f(-390, -240));
+    hpbar.setPosition(player.getCamera().getCenter() + sf::Vector2f(-390, -240));
+    for (int i = 0; i < 9; i++) {
+        if (i == player.getInventory().getSelection()) {
+            window.draw(selected);
+        }
+        else {
+            window.draw(unselected);
+        }
+        if (player.getInventory().getItem(i)) {
+            ItemType t = player.getInventory().getItem(i)->getType();
+            s.setPosition(unselected.getPosition() + sf::Vector2f(4, 4));
+            s.setTextureRect(items[t]);
+            window.draw(s);
+        }
+        selected.move(40, 0);
+        unselected.move(40, 0);
+    }
+    filledbar.scale(6 * (static_cast<float>(player.getHP()) / player.getMaxHP()), 1);
+    window.draw(hpbar);
+    window.draw(filledbar);
+}
+GameRender::GameRender() {
+    for (int i = 0; i < 2; i++)
+    {
+        tiles.push_back(sf::IntRect(32 * i, 0, 32, 32));
+    }
+    s.setTexture(Assets::getTexture(TILES));
+}
+void GameRender::draw(sf::RenderWindow& window, Player& player, Game& game) {
+    sf::Vector2f center = player.getCamera().getCenter();
+    sf::Vector2f size = player.getCamera().getSize();
+    sf::FloatRect camera(center.x - size.x / 2, center.y - size.y / 2, size.x, size.y);
+    int left = std::max(std::floor(camera.left) / 32, 0.f);
+    int top = std::max(std::floor(camera.top) / 32, 0.f);
+    int right = std::min(std::ceil((camera.left + camera.width) / 32), static_cast<float>(game.getRow()));
+    int bottom = std::min(std::ceil((camera.top + camera.height) / 32), static_cast<float>(game.getCol()));
+    for (int i = top; i < bottom; i++) {
+        for (int j = left; j < right; j++) {
+            if (game.map[j][i]) {
+                TileType t = game.map[j][i]->getType();
+                s.setTextureRect(tiles[t]);
+                s.setPosition(32 * j, 32 * i);
+                window.draw(s);
+            }
+        }
+    }
+}
+
+GameScreen::GameScreen(int row, int col):game(row,col), player(0xFFFFFFFF) {
+    player.setSize({ 50.f, 50.f });
+    player.setPosition({ 375.f, -375.f });
+}
+void GameScreen::input() {
+    player.handleInput();
+}
+void GameScreen::update(float deltatime) {
+    player.simulateMovement(game, deltatime);
+}
+void GameScreen::render(sf::RenderWindow& window) {
+    window.clear(sf::Color::Black);
+    player.setCameraPosition();
+    player.focus(window);
+    gamerender.draw(window, player, game);
+    hudrender.draw(window, player);
+    player.draw(window);
+    window.display();
+}
+bool GameScreen::isSeeThrough() {
+    return false;
+}
+bool GameScreen::isWorkThrough() {
+    return false;
+}
