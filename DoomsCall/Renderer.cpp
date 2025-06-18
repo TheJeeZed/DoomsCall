@@ -64,29 +64,3 @@ void GameRender::draw(sf::RenderWindow& window, Player& player, Game& game) {
         }
     }
 }
-
-GameScreen::GameScreen(int row, int col):game(row,col), player(0xFFFFFFFF) {
-    player.setSize({ 50.f, 50.f });
-    player.setPosition({ 375.f, -375.f });
-}
-void GameScreen::input() {
-    player.handleInput();
-}
-void GameScreen::update(float deltatime) {
-    player.simulateMovement(game, deltatime);
-}
-void GameScreen::render(sf::RenderWindow& window) {
-    window.clear(sf::Color::Black);
-    player.setCameraPosition();
-    player.focus(window);
-    gamerender.draw(window, player, game);
-    hudrender.draw(window, player);
-    player.draw(window);
-    window.display();
-}
-bool GameScreen::isSeeThrough() {
-    return false;
-}
-bool GameScreen::isWorkThrough() {
-    return false;
-}

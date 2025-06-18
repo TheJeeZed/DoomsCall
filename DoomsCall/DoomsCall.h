@@ -63,15 +63,13 @@ public:
 
 class Object {
 protected:
-    sf::RectangleShape shape;
+    sf::Sprite shape;
 public:
-    Object(sf::Uint32 color,const sf::Vector2f& position, const sf::Vector2f& size);
+    Object(const sf::Vector2f& position);
     void draw(sf::RenderWindow& window) const;
     void setPosition(const sf::Vector2f& position);
     void setPosition(float x, float y);
     sf::Vector2f getPosition() const;
-    void setSize(const sf::Vector2f& size);
-    sf::Vector2f getSize() const;
     sf::FloatRect getBounds() const;
 };
 class DynamicObject:public Object {
@@ -82,7 +80,7 @@ protected:
     bool hitceiling;
     sf::View camera;
 public:
-    DynamicObject(sf::Uint32 color, const sf::Vector2f& position, const sf::Vector2f& size);
+    DynamicObject(const sf::Vector2f& position);
     void simulateMovement(Game& game, float deltatime);
     void setCameraPosition();
     void focus(sf::RenderWindow& window);
@@ -95,7 +93,7 @@ private:
     float speed;
     Inventory inventory;
 public:
-    Player(sf::Uint32 color);
+    Player();
     void heal(int amount);
     int getHP();
     int getMaxHP();

@@ -54,7 +54,7 @@ Item* Inventory::getItem(int select) {
 }
 Inventory::~Inventory() {
     for (int i = 0; i < 9; i++) {
-        delete[] inventory[i];
+        delete inventory[i];
     }
 }
 
@@ -79,10 +79,8 @@ int Game::getCol() {
     return col;
 }
 
-Object::Object(sf::Uint32 color = 0, const sf::Vector2f& position = { 0.f, 0.f }, const sf::Vector2f& size = { 50.f, 50.f}) {
+Object::Object(const sf::Vector2f& position = { 0.f, 0.f }){
     shape.setPosition(position);
-    shape.setSize(size);
-    shape.setFillColor(sf::Color::Color(color));
 }
 void Object::draw(sf::RenderWindow& window) const {
     window.draw(shape);
@@ -96,18 +94,12 @@ void Object::setPosition(float x, float y) {
 sf::Vector2f Object::getPosition() const {
     return shape.getPosition();
 }
-void Object::setSize(const sf::Vector2f& size) {
-    shape.setSize(size);
-}
-sf::Vector2f Object::getSize() const {
-    return shape.getSize();
-}
 sf::FloatRect Object::getBounds() const {
     return shape.getGlobalBounds();
 }
 
-DynamicObject::DynamicObject(sf::Uint32 color, const sf::Vector2f& position = { 0.f, 0.f }, const sf::Vector2f& size = { 50.f, 50.f }):
-Object(color,position,size){
+DynamicObject::DynamicObject(const sf::Vector2f& position = { 0.f, 0.f }):
+Object(position){
     grounded = false;
     hitceiling = false;
 }
@@ -172,7 +164,8 @@ sf::View& DynamicObject::getCamera() {
     return camera;
 }
 
-Player::Player(sf::Uint32 color):DynamicObject(color) {
+Player::Player(){
+    shape = sf::Sprite(Assets::getTexture(PLAYER));
     inventory.addItem(new Medkit());
     maxHP = 200;
     HP = 0;

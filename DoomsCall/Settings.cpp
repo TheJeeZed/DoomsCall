@@ -1,5 +1,9 @@
 #include "Settings.h"
 
+int Settings::length = 100;
+int Settings::width = 100;
+int Settings::maxFPS = 60;
+
 Settings::Settings() {
     if (!icon.loadFromFile("DoomsCall.ico")) {
         std::cerr << "FAIL";
@@ -17,16 +21,16 @@ Settings::Settings() {
     fin >> maxFPS;
     fin.close();
 }
-int Settings::getlength() const {
+int Settings::getlength() {
     return length;
 }
-int Settings::getwidth() const {
+int Settings::getwidth() {
     return width;
 }
-int Settings::getmaxFPS() const {
+int Settings::getmaxFPS() {
     return maxFPS;
 }
-const sf::Uint8* Settings::geticon() const {
+const sf::Uint8* Settings::geticon() {
     return icon.getPixelsPtr();
 }
 
@@ -46,6 +50,10 @@ void Assets::loadTextures() {
     }
     textures.push_back(image);
     if (!image.loadFromFile("resources/Items.png")) {
+        std::cerr << "FAIL";
+    }
+    textures.push_back(image);
+    if (!image.loadFromFile("resources/entities/Player.png")) {
         std::cerr << "FAIL";
     }
     textures.push_back(image);

@@ -137,6 +137,7 @@
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Physics.cpp" />
     <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="Screens.cpp" />
     <ClCompile Include="Settings.cpp" />
     <ClCompile Include="Tiles.cpp" />
   </ItemGroup>
@@ -144,6 +145,7 @@
     <ClInclude Include="DoomsCall.h" />
     <ClInclude Include="Physics.h" />
     <ClInclude Include="Renderer.h" />
+    <ClInclude Include="Screens.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="Tiles.h" />
   </ItemGroup>

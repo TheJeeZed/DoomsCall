@@ -5,20 +5,19 @@
 #include <fstream>
 #include <iostream>
 
-enum AssetType { BUTTONS, HUD, TILES, ITEMS };
+enum AssetType { BUTTONS, HUD, TILES, ITEMS ,PLAYER};
 
 class Settings {
     sf::Image icon;
-    int length;
-    int width;
-    int maxFPS;
+    static int length;
+    static int width;
+    static int maxFPS;
 public:
     Settings();
-    int getlength() const;
-    int getwidth() const;
-    int getmaxFPS() const;
-
-    const sf::Uint8* geticon() const;
+    static int getlength();
+    static int getwidth();
+    static int getmaxFPS();
+    const sf::Uint8* geticon();
 };
 class Assets {
 private:
