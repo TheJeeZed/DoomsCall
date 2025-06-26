@@ -11,14 +11,18 @@ int main() {
     while (window.isOpen()) {
         sf::Event event;
         while (window.pollEvent(event)) {
+            
             if (event.type == sf::Event::Closed)
+                
                 window.close();
         }
         float delta = clock.restart().asSeconds();
-        ScreenStack::input(event,ScreenStack::getsize() - 1);
+        window.clear(sf::Color::Black);
+        ScreenStack::input(event, ScreenStack::getsize() - 1);
         ScreenStack::update(delta, ScreenStack::getsize() - 1);
         ScreenStack::render(window, ScreenStack::getsize() - 1);
-        std::cout << 1 / delta << "FPS" << std::endl;
+        window.display();
+        //std::cout << 1 / delta << "FPS" << std::endl;
     }
     return 0;
 }

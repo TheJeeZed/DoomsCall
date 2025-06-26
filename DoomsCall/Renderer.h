@@ -20,4 +20,9 @@ public:
     GameRender();
     void draw(sf::RenderWindow& window, Player& player, Game& game);
 };
-
+class ButtonRender {
+    sf::Sprite s;
+public:
+    ButtonRender();
+    void draw(sf::RenderWindow& window,Button& button);
+};

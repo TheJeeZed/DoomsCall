@@ -27,9 +27,11 @@ public:
     bool isSeeThrough();
 };
 class PauseScreen:public Screen {
+    ButtonRender buttonrender;
+    Button start;
     sf::RectangleShape shade;
 public:
-    PauseScreen();
+    PauseScreen(sf::View& camera);
     void input(sf::Event& event);
     void update(float deltatime);
     void render(sf::RenderWindow& window);

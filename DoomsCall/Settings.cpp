@@ -61,3 +61,28 @@ void Assets::loadTextures() {
 sf::Texture& Assets::getTexture(AssetType type) {
     return textures[static_cast<int>(type)];
 }
+
+Button::Button(float x, float y, float scale, ButtonType type) :location(x, y, 32 * scale, 32 * scale)
+{
+    this->type = type;
+    ishovered = false;
+}
+void Button::update(const sf::Vector2i& mousePos) {
+    ishovered = location.contains(sf::Vector2f(mousePos.x,mousePos.y));
+}
+bool Button::isClicked(const sf::Event& event) const {
+    return ishovered && event.type == sf::Event::MouseButtonPressed
+        && event.mouseButton.button == sf::Mouse::Left;
+}
+ButtonType Button::getType() {
+    return type;
+}
+bool Button::isHovered() {
+    return ishovered;
+}
+sf::Vector2f Button::getPosition() {
+    return sf::Vector2f(location.left, location.top);
+}
+sf::Vector2f Button::getScale() {
+    return sf::Vector2f(location.width/32.f, location.height/32.f);
+}

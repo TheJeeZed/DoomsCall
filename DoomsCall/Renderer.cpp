@@ -64,3 +64,12 @@ void GameRender::draw(sf::RenderWindow& window, Player& player, Game& game) {
         }
     }
 }
+ButtonRender::ButtonRender() {
+    s.setTexture(Assets::getTexture(BUTTONS));
+}
+void ButtonRender::draw(sf::RenderWindow& window,Button& button) {
+    s.setTextureRect(sf::IntRect(32 * button.getType(), 32 * button.isHovered(), 32, 32));
+    s.setPosition(button.getPosition());
+    s.setScale(button.getScale());
+    window.draw(s);
+}

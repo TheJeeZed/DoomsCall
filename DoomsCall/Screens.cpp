@@ -4,31 +4,26 @@ int ScreenStack::size = 0;
 std::vector<Screen*> ScreenStack::screens;
 
 GameScreen::GameScreen(int row, int col) :game(row, col) {
-    player.setPosition({ 375.f, -375.f });
+    player.setPosition({ 375.f * 0, -475.f});
 }
 void GameScreen::input(sf::Event& event) {
     static bool uWasPressed = false;
     bool uIsPressed = sf::Keyboard::isKeyPressed(sf::Keyboard::U);
     if (uIsPressed && !uWasPressed) {
-        ScreenStack::push_screen(new PauseScreen);
+        ScreenStack::push_screen(new PauseScreen(player.getCamera()));
     }
     uWasPressed = uIsPressed;
-    if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::U) {
-        ScreenStack::push_screen(new PauseScreen);
-    }
     player.handleInput();
 }
 void GameScreen::update(float deltatime) {
     player.simulateMovement(game, deltatime);
 }
 void GameScreen::render(sf::RenderWindow& window) {
-    window.clear(sf::Color::Black);
     player.setCameraPosition();
     player.focus(window);
     gamerender.draw(window, player, game);
     hudrender.draw(window, player);
     player.draw(window);
-    window.display();
 }
 bool GameScreen::isWorkThrough() {
     return false;
@@ -40,7 +35,7 @@ bool GameScreen::isSeeThrough() {
     return false;
 }
 
-PauseScreen::PauseScreen() {
+PauseScreen::PauseScreen(sf::View& camera):start(camera.getCenter().x, camera.getCenter().y,2,PLAY) {
     shade.setSize(sf::Vector2f(Settings::getlength(),Settings::getwidth()));
 }
 void PauseScreen::input(sf::Event& event) {
@@ -50,11 +45,15 @@ void PauseScreen::input(sf::Event& event) {
         ScreenStack::pop_screen();
     }
     uWasPressed = uIsPressed;
+    if (start.isClicked(event)) {
+        ScreenStack::pop_screen();
+    }
 }
 void PauseScreen::update(float deltatime) {
 }
 void PauseScreen::render(sf::RenderWindow& window) {
-    window.draw(shade);
+    start.update(sf::Mouse::getPosition(window) - sf::Vector2i(400, 300) + sf::Vector2i(start.getPosition().x,start.getPosition().y));
+    buttonrender.draw(window, start);
 }
 bool PauseScreen::isWorkThrough() {
     return false;

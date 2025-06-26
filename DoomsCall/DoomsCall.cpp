@@ -3,7 +3,7 @@
 Acceleration gravity(0, 800.f);
 
 Item::~Item() {
-
+    
 }
 
 void Medkit::whenHeld(Player& player) {
@@ -154,15 +154,6 @@ void DynamicObject::simulateMovement(Game& game, float deltatime) {
         shape.move(0.f, movement.y);
     }
 }
-void DynamicObject::setCameraPosition() {
-    camera.setCenter(this->getPosition());
-}
-void DynamicObject::focus(sf::RenderWindow& window) {
-    window.setView(camera);
-}
-sf::View& DynamicObject::getCamera() {
-    return camera;
-}
 
 Player::Player(){
     shape = sf::Sprite(Assets::getTexture(PLAYER));
@@ -210,7 +201,16 @@ void Player::handleInput() {
     else
         velocity.value.x = 0.f; 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) && grounded && !hitceiling) {
-        velocity.value.y = -speed * 1;  
+        velocity.value.y = -speed;  
         grounded = false;
     }
+}
+void Player::setCameraPosition() {
+    camera.setCenter(this->getPosition());
+}
+void Player::focus(sf::RenderWindow& window) {
+    window.setView(camera);
+}
+sf::View& Player::getCamera() {
+    return camera;
 }

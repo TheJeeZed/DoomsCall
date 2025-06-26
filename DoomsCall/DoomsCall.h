@@ -21,7 +21,7 @@ public:
     virtual void whenHeld(Player& player) = 0;
     virtual void whenUsed(Player& player) = 0;
     virtual ItemType getType() = 0;
-    virtual ~Item() = 0;
+    ~Item();
 };
 class Medkit :public Item {
 public:
@@ -78,16 +78,13 @@ protected:
     Acceleration acceleration;
     bool grounded;
     bool hitceiling;
-    sf::View camera;
 public:
     DynamicObject(const sf::Vector2f& position);
     void simulateMovement(Game& game, float deltatime);
-    void setCameraPosition();
-    void focus(sf::RenderWindow& window);
-    sf::View& getCamera();
 };
 class Player : public DynamicObject {
 private:
+    sf::View camera;
     int maxHP;
     int HP;
     float speed;
@@ -99,5 +96,8 @@ public:
     int getMaxHP();
     Inventory& getInventory();
     void handleInput();
+    void setCameraPosition();
+    void focus(sf::RenderWindow& window);
+    sf::View& getCamera();
 };
 

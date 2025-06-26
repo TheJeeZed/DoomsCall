@@ -6,6 +6,7 @@
 #include <iostream>
 
 enum AssetType { BUTTONS, HUD, TILES, ITEMS ,PLAYER};
+enum ButtonType {PLAY,OPTIONS};
 
 class Settings {
     sf::Image icon;
@@ -25,4 +26,18 @@ private:
 public:
     static void loadTextures();
     static sf::Texture& getTexture(AssetType type);
+};
+class Button {
+private:
+    sf::FloatRect location;
+    ButtonType type;
+    bool ishovered;
+public:
+    Button(float x, float y, float scale, ButtonType type);
+    void update(const sf::Vector2i& mousePos);
+    bool isClicked(const sf::Event& event) const;
+    ButtonType getType();
+    bool isHovered();
+    sf::Vector2f getPosition();
+    sf::Vector2f getScale();
 };
