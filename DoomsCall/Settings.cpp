@@ -3,6 +3,7 @@
 int Settings::length = 100;
 int Settings::width = 100;
 int Settings::maxFPS = 60;
+int Settings::inputdelay = 0;
 
 Settings::Settings() {
     if (!icon.loadFromFile("DoomsCall.ico")) {
@@ -30,13 +31,31 @@ int Settings::getwidth() {
 int Settings::getmaxFPS() {
     return maxFPS;
 }
+int Settings::getDelay() {
+    return inputdelay;
+}
+void Settings::setDelay(int val) {
+    inputdelay = val;
+}
+void Settings::updateDelay() {
+    if (inputdelay > 0)inputdelay--;
+}
 const sf::Uint8* Settings::geticon() {
     return icon.getPixelsPtr();
 }
 
 std::vector<sf::Texture> Assets::textures;
+
 void Assets::loadTextures() {
     sf::Texture image;
+    if (!image.loadFromFile("resources/no_texture.png")) {
+        std::cerr << "FAIL";
+    }
+    textures.push_back(image);
+    if (!image.loadFromFile("resources/title.png")) {
+        std::cerr << "FAIL";
+    }
+    textures.push_back(image);
     if (!image.loadFromFile("resources/icons/Buttons.png")) {
         std::cerr << "FAIL";
     }
@@ -58,7 +77,7 @@ void Assets::loadTextures() {
     }
     textures.push_back(image);
 }
-sf::Texture& Assets::getTexture(AssetType type) {
+sf::Texture& Assets::getTexture(TextureType type) {
     return textures[static_cast<int>(type)];
 }
 

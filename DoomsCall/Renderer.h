@@ -21,7 +21,7 @@ public:
     void draw(sf::RenderWindow& window, Player& player, Game& game);
 };
 class ButtonRender {
-    sf::Sprite s;
+    sf::Sprite buttonsprite;
 public:
     ButtonRender();
     void draw(sf::RenderWindow& window,Button& button);

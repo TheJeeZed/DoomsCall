@@ -1,10 +1,14 @@
 #include "Renderer.h"
 
 HUDRender::HUDRender() {
-    selected = sf::Sprite(Assets::getTexture(AssetType::HUD), sf::IntRect(32, 0, 40, 40));
-    unselected = sf::Sprite(Assets::getTexture(AssetType::HUD), sf::IntRect(72, 0, 40, 40));
-    filledbar = sf::Sprite(Assets::getTexture(AssetType::HUD), sf::IntRect(0, 0, 32, 16));
-    hpbar = sf::Sprite(Assets::getTexture(AssetType::HUD), sf::IntRect(0, 16, 32, 16));
+    selected = sf::Sprite(Assets::getTexture(HUD), sf::IntRect(32, 0, 40, 40));
+    unselected = sf::Sprite(Assets::getTexture(HUD), sf::IntRect(72, 0, 40, 40));
+    filledbar = sf::Sprite(Assets::getTexture(HUD), sf::IntRect(0, 0, 32, 16));
+    hpbar = sf::Sprite(Assets::getTexture(HUD), sf::IntRect(0, 16, 32, 16));
+    selected.setPosition(sf::Vector2f(10, 10));
+    unselected.setPosition(sf::Vector2f(10, 10));
+    filledbar.setPosition(sf::Vector2f(15,60));
+    hpbar.setPosition(sf::Vector2f(15, 60));
     for (int i = 0; i < 2; i++)
     {
         items.push_back(sf::IntRect(32 * i, 0, 32, 32));
@@ -14,10 +18,6 @@ HUDRender::HUDRender() {
 }
 void HUDRender::draw(sf::RenderWindow& window, Player& player) {
     filledbar.setScale(1, 1);
-    selected.setPosition(player.getCamera().getCenter() + sf::Vector2f(-390, -290));
-    unselected.setPosition(player.getCamera().getCenter() + sf::Vector2f(-390, -290));
-    filledbar.setPosition(player.getCamera().getCenter() + sf::Vector2f(-390, -240));
-    hpbar.setPosition(player.getCamera().getCenter() + sf::Vector2f(-390, -240));
     for (int i = 0; i < 9; i++) {
         if (i == player.getInventory().getSelection()) {
             window.draw(selected);
@@ -37,6 +37,8 @@ void HUDRender::draw(sf::RenderWindow& window, Player& player) {
     filledbar.scale(6 * (static_cast<float>(player.getHP()) / player.getMaxHP()), 1);
     window.draw(hpbar);
     window.draw(filledbar);
+    selected.setPosition(sf::Vector2f(10, 10));
+    unselected.setPosition(sf::Vector2f(10, 10));
 }
 GameRender::GameRender() {
     for (int i = 0; i < 2; i++)
@@ -65,11 +67,11 @@ void GameRender::draw(sf::RenderWindow& window, Player& player, Game& game) {
     }
 }
 ButtonRender::ButtonRender() {
-    s.setTexture(Assets::getTexture(BUTTONS));
+    buttonsprite.setTexture(Assets::getTexture(BUTTONS));
 }
 void ButtonRender::draw(sf::RenderWindow& window,Button& button) {
-    s.setTextureRect(sf::IntRect(32 * button.getType(), 32 * button.isHovered(), 32, 32));
-    s.setPosition(button.getPosition());
-    s.setScale(button.getScale());
-    window.draw(s);
+    buttonsprite.setTextureRect(sf::IntRect(32 * button.getType(), 32 * button.isHovered(), 32, 32));
+    buttonsprite.setPosition(button.getPosition());
+    buttonsprite.setScale(button.getScale());
+    window.draw(buttonsprite);
 }

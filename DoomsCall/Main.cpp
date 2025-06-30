@@ -7,21 +7,20 @@ int main() {
     window.setFramerateLimit(Settings::getmaxFPS());
     sf::Clock clock;
     window.setIcon(32,32,s.geticon());
-    ScreenStack::push_screen(new GameScreen(2048, 2048));
+    ScreenStack::push_screen(new MainScreen);
     while (window.isOpen()) {
         sf::Event event;
         while (window.pollEvent(event)) {
-            
-            if (event.type == sf::Event::Closed)
-                
+            if (event.type == sf::Event::Closed || !ScreenStack::getsize())
                 window.close();
         }
         float delta = clock.restart().asSeconds();
         window.clear(sf::Color::Black);
         ScreenStack::input(event, ScreenStack::getsize() - 1);
-        ScreenStack::update(delta, ScreenStack::getsize() - 1);
+        ScreenStack::update(window,delta, ScreenStack::getsize() - 1);
         ScreenStack::render(window, ScreenStack::getsize() - 1);
         window.display();
+        Settings::updateDelay();
         //std::cout << 1 / delta << "FPS" << std::endl;
     }
     return 0;

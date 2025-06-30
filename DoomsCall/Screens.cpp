@@ -3,6 +3,80 @@
 int ScreenStack::size = 0;
 std::vector<Screen*> ScreenStack::screens;
 
+MainScreen::MainScreen():
+    start(Settings::getlength() / 2-64, Settings::getwidth() / 2-32, 2, PLAY),
+    option(Settings::getlength() / 2, Settings::getwidth() / 2-32, 2, OPTIONS),
+    exit(Settings::getlength() / 2-32, Settings::getwidth() / 2+32, 2, EXIT) {
+    title = sf::Sprite(Assets::getTexture(TITLE));
+    title.setPosition(Settings::getlength() / 2 - 190,40);
+}
+void MainScreen::input(sf::Event& event) {
+    if (start.isClicked(event)) {
+        ScreenStack::push_screen(new GameScreen(2048,2048));
+    }
+    if (option.isClicked(event)) {
+        ScreenStack::push_screen(new SettingsScreen);
+    }
+    if (exit.isClicked(event)) {
+        ScreenStack::pop_screen();
+    }
+}
+void MainScreen::update(sf::RenderWindow& window, float deltatime) {
+    start.update(sf::Mouse::getPosition(window));
+    option.update(sf::Mouse::getPosition(window));
+    exit.update(sf::Mouse::getPosition(window));
+}
+void MainScreen::render(sf::RenderWindow& window) {
+    window.setView(window.getDefaultView());
+    window.draw(title);
+    buttonrender.draw(window, start);
+    buttonrender.draw(window, option);
+    buttonrender.draw(window, exit);
+}
+bool MainScreen::isWorkThrough() {
+    return false;
+}
+bool MainScreen::isUpdateThrough() {
+    return false;
+}
+bool MainScreen::isSeeThrough() {
+    return false;
+}
+
+SettingsScreen::SettingsScreen() :
+    display(Settings::getlength() / 2 - 96, Settings::getwidth() / 2 - 32, 2, DISPLAY),
+    sound(Settings::getlength() / 2 - 32, Settings::getwidth() / 2 - 32, 2, SOUND),
+    controls(Settings::getlength() / 2 + 32, Settings::getwidth() / 2-32, 2, CONTROLS),
+    exit(Settings::getlength() / 2 - 32, Settings::getwidth() / 2 + 32, 2, EXIT) {
+}
+void SettingsScreen::input(sf::Event& event) {
+    if (exit.isClicked(event)) {
+        ScreenStack::pop_screen();
+    }
+}
+void SettingsScreen::update(sf::RenderWindow& window, float deltatime) {
+    display.update(sf::Mouse::getPosition(window));
+    sound.update(sf::Mouse::getPosition(window));
+    controls.update(sf::Mouse::getPosition(window));
+    exit.update(sf::Mouse::getPosition(window));
+}
+void SettingsScreen::render(sf::RenderWindow& window) {
+    window.setView(window.getDefaultView());
+    buttonrender.draw(window, display);
+    buttonrender.draw(window, sound);
+    buttonrender.draw(window, controls);
+    buttonrender.draw(window, exit);
+}
+bool SettingsScreen::isWorkThrough() {
+    return false;
+}
+bool SettingsScreen::isUpdateThrough() {
+    return false;
+}
+bool SettingsScreen::isSeeThrough() {
+    return false;
+}
+
 GameScreen::GameScreen(int row, int col) :game(row, col) {
     player.setPosition({ 375.f * 0, -475.f});
 }
@@ -10,20 +84,21 @@ void GameScreen::input(sf::Event& event) {
     static bool uWasPressed = false;
     bool uIsPressed = sf::Keyboard::isKeyPressed(sf::Keyboard::U);
     if (uIsPressed && !uWasPressed) {
-        ScreenStack::push_screen(new PauseScreen(player.getCamera()));
+        ScreenStack::push_screen(new PauseScreen());
     }
     uWasPressed = uIsPressed;
     player.handleInput();
 }
-void GameScreen::update(float deltatime) {
+void GameScreen::update(sf::RenderWindow& window, float deltatime) {
     player.simulateMovement(game, deltatime);
 }
 void GameScreen::render(sf::RenderWindow& window) {
     player.setCameraPosition();
     player.focus(window);
     gamerender.draw(window, player, game);
-    hudrender.draw(window, player);
     player.draw(window);
+    window.setView(window.getDefaultView());
+    hudrender.draw(window, player);
 }
 bool GameScreen::isWorkThrough() {
     return false;
@@ -35,7 +110,7 @@ bool GameScreen::isSeeThrough() {
     return false;
 }
 
-PauseScreen::PauseScreen(sf::View& camera):start(camera.getCenter().x, camera.getCenter().y,2,PLAY) {
+PauseScreen::PauseScreen() :start(Settings::getlength() / 2, Settings::getwidth() / 2 , 2, PLAY) {
     shade.setSize(sf::Vector2f(Settings::getlength(),Settings::getwidth()));
 }
 void PauseScreen::input(sf::Event& event) {
@@ -49,10 +124,12 @@ void PauseScreen::input(sf::Event& event) {
         ScreenStack::pop_screen();
     }
 }
-void PauseScreen::update(float deltatime) {
+void PauseScreen::update(sf::RenderWindow& window, float deltatime) {
+    start.update(sf::Mouse::getPosition(window));
 }
 void PauseScreen::render(sf::RenderWindow& window) {
-    start.update(sf::Mouse::getPosition(window) - sf::Vector2i(400, 300) + sf::Vector2i(start.getPosition().x,start.getPosition().y));
+    window.setView(window.getDefaultView());
+    start.update(sf::Mouse::getPosition(window));
     buttonrender.draw(window, start);
 }
 bool PauseScreen::isWorkThrough() {
@@ -69,26 +146,31 @@ int ScreenStack::getsize() {
     return size;
 }
 void ScreenStack::push_screen(Screen* screen) {
+    Settings::setDelay(Settings::getmaxFPS() / 6);
     screens.push_back(screen);
     size++;
 }
 void ScreenStack::pop_screen() {
+    Settings::setDelay(Settings::getmaxFPS() / 6);
     screens.pop_back();
     size--;
 }
-void ScreenStack::input(sf::Event& event,int point) {
+void ScreenStack::input(sf::Event& event, int point) {
+    if (!size||Settings::getDelay())return;
     if (screens[point]->isWorkThrough()) {
         input(event,point - 1);
     }
     screens[point]->input(event);
 }
-void ScreenStack::update(float deltatime,int point) {
+void ScreenStack::update(sf::RenderWindow& window, float deltatime,int point) {
+    if (!size)return;
     if (screens[point]->isUpdateThrough()) {
-        update(deltatime,point - 1);
+        update(window,deltatime,point - 1);
     }
-    screens[point]->update(deltatime);
+    screens[point]->update(window,deltatime);
 }
 void ScreenStack::render(sf::RenderWindow& window, int point) {
+    if (!size)return;
     if (screens[point]->isSeeThrough()) {
         render(window,point - 1);
     }
