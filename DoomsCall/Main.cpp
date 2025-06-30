@@ -16,8 +16,8 @@ int main() {
         }
         float delta = clock.restart().asSeconds();
         window.clear(sf::Color::Black);
-        ScreenStack::input(event, ScreenStack::getsize() - 1);
-        ScreenStack::update(window,delta, ScreenStack::getsize() - 1);
+        ScreenStack::input(window,event, ScreenStack::getsize() - 1);
+        ScreenStack::update(delta, ScreenStack::getsize() - 1);
         ScreenStack::render(window, ScreenStack::getsize() - 1);
         window.display();
         Settings::updateDelay();

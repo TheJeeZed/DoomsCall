@@ -5,7 +5,7 @@
 #include <fstream>
 #include <iostream>
 
-enum TextureType {EMPTY,TITLE,BUTTONS, HUD, TILES, ITEMS ,PLAYER};
+enum TextureType {EMPTY,TITLE,BUTTONS,SLIDER, HUD, TILES, ITEMS ,PLAYER};
 enum ButtonType {PLAY,OPTIONS,EXIT,DISPLAY,SOUND,CONTROLS};
 
 class Settings {
@@ -44,4 +44,18 @@ public:
     bool isHovered();
     sf::Vector2f getPosition();
     sf::Vector2f getScale();
+};
+class Slider {
+    std::vector<sf::FloatRect> locations;
+    std::vector<bool> ishovered;
+    bool isdragging;
+    int sections;
+    int selected;
+public:
+    Slider(float x,float y,float scale,int sections,int selected);
+    void update(const sf::Vector2i& mousePos, sf::Event& event);
+    int getSections();
+    int getSelected();
+    sf::Vector2f getPosition(int index);
+    sf::Vector2f getScale(int index);
 };

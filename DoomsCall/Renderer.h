@@ -26,3 +26,9 @@ public:
     ButtonRender();
     void draw(sf::RenderWindow& window,Button& button);
 };
+class SliderRender {
+    sf::Sprite slidersprite;
+public:
+    SliderRender();
+    void draw(sf::RenderWindow& window, Slider& slider);
+};

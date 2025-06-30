@@ -60,6 +60,10 @@ void Assets::loadTextures() {
         std::cerr << "FAIL";
     }
     textures.push_back(image);
+    if (!image.loadFromFile("resources/icons/Sliders.png")) {
+        std::cerr << "FAIL";
+    }
+    textures.push_back(image);
     if (!image.loadFromFile("resources/icons/HUD.png")) {
         std::cerr << "FAIL";
     }
@@ -104,4 +108,45 @@ sf::Vector2f Button::getPosition() {
 }
 sf::Vector2f Button::getScale() {
     return sf::Vector2f(location.width/32.f, location.height/32.f);
+}
+
+Slider::Slider(float x, float y, float scale, int section,int selection)
+{
+    sections = section;
+    selected = selection;
+    ishovered.resize(section);
+    for (int i = 0; i < section; i++) {
+        ishovered[i] = false;
+    }
+    locations.resize(section);
+    for (int i = 0; i < section; i++) {
+        locations[i] = sf::FloatRect(x + (scale * 16 * i), y,16 * scale,16 * scale);
+    }
+    isdragging = false;
+}
+void Slider::update(const sf::Vector2i& mousePos,sf::Event& event) {
+    isdragging = false;
+    for (int i = 0; i < sections; i++) {
+        if (!isdragging) {
+            isdragging = locations[i].contains(sf::Vector2f(mousePos.x, mousePos.y));
+        }
+    }
+    if (isdragging && sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+        int index = (mousePos.x - locations[0].left) / locations[0].width;
+        if (index >= 0 && index < sections) {
+            selected = index;
+        }
+    }
+}
+int Slider::getSections() {
+    return sections;
+}
+int Slider::getSelected() {
+    return selected;
+}
+sf::Vector2f Slider::getPosition(int index) {
+    return sf::Vector2f(locations[index].left, locations[index].top);
+}
+sf::Vector2f Slider::getScale(int index) {
+    return sf::Vector2f(locations[index].width / 16.f, locations[index].height / 16.f);
 }

@@ -75,3 +75,14 @@ void ButtonRender::draw(sf::RenderWindow& window,Button& button) {
     buttonsprite.setScale(button.getScale());
     window.draw(buttonsprite);
 }
+SliderRender::SliderRender() {
+    slidersprite.setTexture(Assets::getTexture(SLIDER));
+}
+void SliderRender::draw(sf::RenderWindow& window, Slider& slider) {
+    slidersprite.setScale(slider.getScale(0));
+    for (int i = 0; i < slider.getSections(); i++) {
+        slidersprite.setPosition(slider.getPosition(i));
+        slidersprite.setTextureRect(sf::IntRect(16 * (i == slider.getSelected()),0 , 16, 16));
+        window.draw(slidersprite);
+    }
+}
