@@ -15,7 +15,7 @@ void MainScreen::input(sf::RenderWindow& window, sf::Event& event) {
     option.update(sf::Mouse::getPosition(window));
     exit.update(sf::Mouse::getPosition(window));
     if (start.isClicked(event)) {
-        ScreenStack::push_screen(new GameScreen(2048,2048));
+        ScreenStack::push_screen(new MapScreen(2048,2048));
     }
     if (option.isClicked(event)) {
         ScreenStack::push_screen(new SettingsScreen);
@@ -117,10 +117,11 @@ bool SoundSettingsScreen::isSeeThrough() {
     return false;
 }
 
-GameScreen::GameScreen(int row, int col) :game(row, col) {
-    player.setPosition({ 375.f * 0, -475.f});
+MapScreen::MapScreen(int row, int col) :map(row, col) {
+    player.setPosition({ 375.f * 0, -64.f});
+    drops.addItem(MEDKIT,sf::Vector2f(100,-32));
 }
-void GameScreen::input(sf::RenderWindow& window, sf::Event& event) {
+void MapScreen::input(sf::RenderWindow& window, sf::Event& event) {
     static bool uWasPressed = false;
     bool uIsPressed = sf::Keyboard::isKeyPressed(sf::Keyboard::U);
     if (uIsPressed && !uWasPressed) {
@@ -129,24 +130,26 @@ void GameScreen::input(sf::RenderWindow& window, sf::Event& event) {
     uWasPressed = uIsPressed;
     player.handleInput();
 }
-void GameScreen::update(float deltatime) {
-    player.simulateMovement(game, deltatime);
+void MapScreen::update(float deltatime) {
+    player.simulateMovement(map, deltatime);
+    drops.update(player, map, deltatime);
 }
-void GameScreen::render(sf::RenderWindow& window) {
+void MapScreen::render(sf::RenderWindow& window) {
     player.setCameraPosition();
     player.focus(window);
-    gamerender.draw(window, player, game);
+    drops.draw(window);
+    maprender.draw(window, player, map);
     player.draw(window);
     window.setView(window.getDefaultView());
     hudrender.draw(window, player);
 }
-bool GameScreen::isWorkThrough() {
+bool MapScreen::isWorkThrough() {
     return false;
 }
-bool GameScreen::isUpdateThrough() {
+bool MapScreen::isUpdateThrough() {
     return false;
 }
-bool GameScreen::isSeeThrough() {
+bool MapScreen::isSeeThrough() {
     return false;
 }
 
@@ -216,4 +219,28 @@ void ScreenStack::render(sf::RenderWindow& window, int point) {
         render(window,point - 1);
     }
     screens[point]->render(window);
+}
+
+void Game::run() {
+    Assets::loadTextures();
+    sf::RenderWindow window(sf::VideoMode(800, 600), "DOOMSCALL");
+    window.setFramerateLimit(Settings::getmaxFPS());
+    sf::Clock clock;
+    window.setIcon(32, 32, settings.geticon());
+    ScreenStack::push_screen(new MainScreen);
+    while (window.isOpen()) {
+        sf::Event event;
+        while (window.pollEvent(event)) {
+            if (event.type == sf::Event::Closed || !ScreenStack::getsize())
+                window.close();
+        }
+        float delta = clock.restart().asSeconds();
+        window.clear(sf::Color::Black);
+        ScreenStack::input(window, event, ScreenStack::getsize() - 1);
+        ScreenStack::update(delta, ScreenStack::getsize() - 1);
+        ScreenStack::render(window, ScreenStack::getsize() - 1);
+        window.display();
+        Settings::updateDelay();
+        //std::cout << 1 / delta << "FPS" << std::endl;
+    }
 }

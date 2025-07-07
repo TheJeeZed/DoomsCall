@@ -50,13 +50,13 @@ public:
     ~Inventory();
 };
 
-class Game {
+class Map {
 private:
     int row;
     int col;
 public:
     std::vector<std::vector<Tile*>> map;
-    Game(int row, int col);
+    Map(int row, int col);
     int getRow();
     int getCol();
 };
@@ -80,7 +80,26 @@ protected:
     bool hitceiling;
 public:
     DynamicObject(const sf::Vector2f& position);
-    void simulateMovement(Game& game, float deltatime);
+    void simulateMovement(Map& game, float deltatime);
+};
+class ItemDrop :public DynamicObject {
+    ItemType item;
+    bool ispicked;
+    int lifetime;
+public:
+    ItemDrop(ItemType item, sf::Vector2f location);
+    Item* getItem();
+    void update(Player& player);
+    bool getLifetime();
+    bool getpicked();
+};
+class DropsPile {
+    std::vector<ItemDrop> items;
+    std::vector<int> targets;
+public:
+    void addItem(ItemType item,sf::Vector2f location);
+    void update(Player& player, Map& map,float deltatime);
+    void draw(sf::RenderWindow& window);
 };
 class Player : public DynamicObject {
 private:
@@ -100,4 +119,3 @@ public:
     void focus(sf::RenderWindow& window);
     sf::View& getCamera();
 };
-

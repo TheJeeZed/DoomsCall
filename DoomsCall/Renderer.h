@@ -13,12 +13,12 @@ public:
     HUDRender();
     void draw(sf::RenderWindow& window, Player& player);
 };
-class GameRender {
+class MapRender {
     std::vector<sf::IntRect> tiles;
     sf::Sprite s;
 public:
-    GameRender();
-    void draw(sf::RenderWindow& window, Player& player, Game& game);
+    MapRender();
+    void draw(sf::RenderWindow& window, Player& player, Map& map);
 };
 class ButtonRender {
     sf::Sprite buttonsprite;

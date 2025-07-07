@@ -40,25 +40,25 @@ void HUDRender::draw(sf::RenderWindow& window, Player& player) {
     selected.setPosition(sf::Vector2f(10, 10));
     unselected.setPosition(sf::Vector2f(10, 10));
 }
-GameRender::GameRender() {
+MapRender::MapRender() {
     for (int i = 0; i < 2; i++)
     {
         tiles.push_back(sf::IntRect(32 * i, 0, 32, 32));
     }
     s.setTexture(Assets::getTexture(TILES));
 }
-void GameRender::draw(sf::RenderWindow& window, Player& player, Game& game) {
+void MapRender::draw(sf::RenderWindow& window, Player& player, Map& map) {
     sf::Vector2f center = player.getCamera().getCenter();
     sf::Vector2f size = player.getCamera().getSize();
     sf::FloatRect camera(center.x - size.x / 2, center.y - size.y / 2, size.x, size.y);
     int left = std::max(std::floor(camera.left) / 32, 0.f);
     int top = std::max(std::floor(camera.top) / 32, 0.f);
-    int right = std::min(std::ceil((camera.left + camera.width) / 32), static_cast<float>(game.getRow()));
-    int bottom = std::min(std::ceil((camera.top + camera.height) / 32), static_cast<float>(game.getCol()));
+    int right = std::min(std::ceil((camera.left + camera.width) / 32), static_cast<float>(map.getRow()));
+    int bottom = std::min(std::ceil((camera.top + camera.height) / 32), static_cast<float>(map.getCol()));
     for (int i = top; i < bottom; i++) {
         for (int j = left; j < right; j++) {
-            if (game.map[j][i]) {
-                TileType t = game.map[j][i]->getType();
+            if (map.map[j][i]) {
+                TileType t = map.map[j][i]->getType();
                 s.setTextureRect(tiles[t]);
                 s.setPosition(32 * j, 32 * i);
                 window.draw(s);

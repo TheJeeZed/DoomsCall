@@ -58,13 +58,14 @@ public:
     bool isUpdateThrough();
     bool isSeeThrough();
 };
-class GameScreen :public Screen {
+class MapScreen :public Screen {
     HUDRender hudrender;
-    GameRender gamerender;
+    MapRender maprender;
     Player player;
-    Game game;
+    Map map;
+    DropsPile drops;
 public:
-    GameScreen(int row, int col);
+    MapScreen(int row, int col);
     void input(sf::RenderWindow& window, sf::Event& event);
     void update(float deltatime);
     void render(sf::RenderWindow& window);
@@ -96,3 +97,9 @@ public:
     static void update(float deltatime, int point);
     static void render(sf::RenderWindow& window, int point);
 };
+class Game {
+    Settings settings;
+public:
+    void run();
+};
+

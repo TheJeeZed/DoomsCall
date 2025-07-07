@@ -58,7 +58,7 @@ Inventory::~Inventory() {
     }
 }
 
-Game::Game(int row, int col) {
+Map::Map(int row, int col) {
     this->row = row;
     this->col = col;
     map.resize(row);
@@ -72,10 +72,10 @@ Game::Game(int row, int col) {
         }
     }
 }
-int Game::getRow() {
+int Map::getRow() {
     return row;
 }
-int Game::getCol() {
+int Map::getCol() {
     return col;
 }
 
@@ -103,7 +103,7 @@ Object(position){
     grounded = false;
     hitceiling = false;
 }
-void DynamicObject::simulateMovement(Game& game, float deltatime) {
+void DynamicObject::simulateMovement(Map& game, float deltatime) {
     if (grounded || hitceiling) {
         velocity = Velocity(velocity.value.x, 0);
     }
@@ -152,6 +152,65 @@ void DynamicObject::simulateMovement(Game& game, float deltatime) {
             }
         }
         shape.move(0.f, movement.y);
+    }
+}
+
+ItemDrop::ItemDrop(ItemType item, sf::Vector2f location){
+    shape = sf::Sprite(Assets::getTexture(ITEMS), sf::IntRect(32 * item, 0, 32, 32));
+    shape.setPosition(location);
+    this->item = item;
+    ispicked = false;
+    lifetime = 1200;
+}
+Item* ItemDrop::getItem() {
+    switch (item) {
+    case MEDKIT:
+        return new Medkit;
+        break;
+    case BANDAGE:
+        return new Bandage;
+        break;
+    }
+}
+void ItemDrop::update(Player& player) {
+    if (!ispicked && lifetime > 0) {
+        lifetime--;
+        if(player.getBounds().intersects(getBounds())) {
+            ispicked = true;
+        }
+    }
+}
+bool ItemDrop::getLifetime() {
+    return lifetime;
+}
+bool ItemDrop::getpicked() {
+    return ispicked;
+}
+
+void DropsPile::addItem(ItemType item, sf::Vector2f location) {
+    items.push_back(ItemDrop(item,location));
+}
+void DropsPile::update(Player& player, Map& map, float deltatime) {
+    targets.clear();
+    for (int i = 0; i < items.size(); i++) {
+        items[i].simulateMovement(map, deltatime);
+        items[i].update(player);
+        if (!items[i].getLifetime()) {
+            targets.push_back(i);
+            continue;
+        }
+        if (items[i].getpicked()) {
+            player.getInventory().addItem(items[i].getItem());
+            targets.push_back(i);
+        }
+    }
+    for (int i = targets.size() - 1; i >= 0; i--) {
+        items.erase(items.begin() - i);
+    }
+}
+void DropsPile::draw(sf::RenderWindow& window) {
+    for (int i = 0; i < items.size(); i++) {
+        items[i].draw(window);
     }
 }
 
@@ -214,3 +273,4 @@ void Player::focus(sf::RenderWindow& window) {
 sf::View& Player::getCamera() {
     return camera;
 }
+
