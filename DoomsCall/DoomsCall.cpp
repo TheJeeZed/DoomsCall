@@ -1,6 +1,6 @@
 #include "DoomsCall.h"
 
-Acceleration gravity(0, 800.f);
+Vector gravity(0, 800.f);
 
 Item::~Item() {
     
@@ -46,37 +46,14 @@ void Inventory::removeItem() {
     delete inventory[selection];
     inventory[selection] = nullptr;
 }
-Item* Inventory::getItem() {
-    return inventory[selection];
-}
-Item* Inventory::getItem(int select) {
+Item* Inventory::getItem(int select = -1) {
+    if (select == -1)select = selection;
     return inventory[select];
 }
 Inventory::~Inventory() {
     for (int i = 0; i < 9; i++) {
         delete inventory[i];
     }
-}
-
-Map::Map(int row, int col) {
-    this->row = row;
-    this->col = col;
-    map.resize(row);
-    for (int i = 0; i < row; i++) {
-        map[i].resize(col);
-        for (int j = 0; j < col; j++) {
-            if (i % 2)
-                map[i][j] = new Grass;
-            else
-                map[i][j] = new Spike;
-        }
-    }
-}
-int Map::getRow() {
-    return row;
-}
-int Map::getCol() {
-    return col;
 }
 
 Object::Object(const sf::Vector2f& position = { 0.f, 0.f }){
@@ -105,10 +82,10 @@ Object(position){
 }
 void DynamicObject::simulateMovement(Map& game, float deltatime) {
     if (grounded || hitceiling) {
-        velocity = Velocity(velocity.value.x, 0);
+        velocity = Vector(velocity.value.x, 0);
     }
     else {
-        gravity.apply(velocity, deltatime);
+        gravity.apply(velocity.value, deltatime);
     }
     sf::Vector2f center = shape.getPosition();
     sf::FloatRect bounds(center.x - 256 / 2, center.y - 256 / 2, 256, 256);
@@ -156,7 +133,7 @@ void DynamicObject::simulateMovement(Map& game, float deltatime) {
 }
 
 ItemDrop::ItemDrop(ItemType item, sf::Vector2f location){
-    shape = sf::Sprite(Assets::getTexture(ITEMS), sf::IntRect(32 * item, 0, 32, 32));
+    shape = sf::Sprite(Settings::getTexture(ITEMS), sf::IntRect(32 * item, 0, 32, 32));
     shape.setPosition(location);
     this->item = item;
     ispicked = false;
@@ -175,7 +152,7 @@ Item* ItemDrop::getItem() {
 void ItemDrop::update(Player& player) {
     if (!ispicked && lifetime > 0) {
         lifetime--;
-        if(player.getBounds().intersects(getBounds())) {
+        if(player.getBounds().intersects(getBounds()) && !player.getInventory().getItem()) {
             ispicked = true;
         }
     }
@@ -191,21 +168,19 @@ void DropsPile::addItem(ItemType item, sf::Vector2f location) {
     items.push_back(ItemDrop(item,location));
 }
 void DropsPile::update(Player& player, Map& map, float deltatime) {
-    targets.clear();
     for (int i = 0; i < items.size(); i++) {
         items[i].simulateMovement(map, deltatime);
         items[i].update(player);
         if (!items[i].getLifetime()) {
-            targets.push_back(i);
+            items.erase(items.begin() - i);
+            i--;
             continue;
         }
         if (items[i].getpicked()) {
             player.getInventory().addItem(items[i].getItem());
-            targets.push_back(i);
+            items.erase(items.begin() - i);
+            i--;
         }
-    }
-    for (int i = targets.size() - 1; i >= 0; i--) {
-        items.erase(items.begin() - i);
     }
 }
 void DropsPile::draw(sf::RenderWindow& window) {
@@ -215,7 +190,7 @@ void DropsPile::draw(sf::RenderWindow& window) {
 }
 
 Player::Player(){
-    shape = sf::Sprite(Assets::getTexture(PLAYER));
+    shape = sf::Sprite(Settings::getTexture(PLAYER));
     inventory.addItem(new Medkit());
     maxHP = 200;
     HP = 0;

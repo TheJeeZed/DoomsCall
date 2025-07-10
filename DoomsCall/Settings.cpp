@@ -4,6 +4,7 @@ int Settings::length = 100;
 int Settings::width = 100;
 int Settings::maxFPS = 60;
 int Settings::inputdelay = 0;
+std::vector<sf::Texture> Settings::textures;
 
 Settings::Settings() {
     if (!icon.loadFromFile("DoomsCall.ico")) {
@@ -21,6 +22,43 @@ Settings::Settings() {
     fin >> width;
     fin >> maxFPS;
     fin.close();
+
+    //loading all the images
+    {
+        sf::Texture image;
+        if (!image.loadFromFile("resources/no_texture.png")) {
+            std::cerr << "FAIL";
+        }
+        textures.push_back(image);
+        if (!image.loadFromFile("resources/title.png")) {
+            std::cerr << "FAIL";
+        }
+        textures.push_back(image);
+        if (!image.loadFromFile("resources/icons/Buttons.png")) {
+            std::cerr << "FAIL";
+        }
+        textures.push_back(image);
+        if (!image.loadFromFile("resources/icons/Sliders.png")) {
+            std::cerr << "FAIL";
+        }
+        textures.push_back(image);
+        if (!image.loadFromFile("resources/icons/HUD.png")) {
+            std::cerr << "FAIL";
+        }
+        textures.push_back(image);
+        if (!image.loadFromFile("resources/Tiles.png")) {
+            std::cerr << "FAIL";
+        }
+        textures.push_back(image);
+        if (!image.loadFromFile("resources/Items.png")) {
+            std::cerr << "FAIL";
+        }
+        textures.push_back(image);
+        if (!image.loadFromFile("resources/entities/Player.png")) {
+            std::cerr << "FAIL";
+        }
+        textures.push_back(image);
+    }
 }
 int Settings::getlength() {
     return length;
@@ -43,45 +81,7 @@ void Settings::updateDelay() {
 const sf::Uint8* Settings::geticon() {
     return icon.getPixelsPtr();
 }
-
-std::vector<sf::Texture> Assets::textures;
-
-void Assets::loadTextures() {
-    sf::Texture image;
-    if (!image.loadFromFile("resources/no_texture.png")) {
-        std::cerr << "FAIL";
-    }
-    textures.push_back(image);
-    if (!image.loadFromFile("resources/title.png")) {
-        std::cerr << "FAIL";
-    }
-    textures.push_back(image);
-    if (!image.loadFromFile("resources/icons/Buttons.png")) {
-        std::cerr << "FAIL";
-    }
-    textures.push_back(image);
-    if (!image.loadFromFile("resources/icons/Sliders.png")) {
-        std::cerr << "FAIL";
-    }
-    textures.push_back(image);
-    if (!image.loadFromFile("resources/icons/HUD.png")) {
-        std::cerr << "FAIL";
-    }
-    textures.push_back(image);
-    if (!image.loadFromFile("resources/Tiles.png")) {
-        std::cerr << "FAIL";
-    }
-    textures.push_back(image);
-    if (!image.loadFromFile("resources/Items.png")) {
-        std::cerr << "FAIL";
-    }
-    textures.push_back(image);
-    if (!image.loadFromFile("resources/entities/Player.png")) {
-        std::cerr << "FAIL";
-    }
-    textures.push_back(image);
-}
-sf::Texture& Assets::getTexture(TextureType type) {
+sf::Texture& Settings::getTexture(TextureType type) {
     return textures[static_cast<int>(type)];
 }
 
@@ -149,4 +149,39 @@ sf::Vector2f Slider::getPosition(int index) {
 }
 sf::Vector2f Slider::getScale(int index) {
     return sf::Vector2f(locations[index].width / 16.f, locations[index].height / 16.f);
+}
+
+Vector::Vector():value(0, 0) {}
+Vector::Vector(float x, float y) : value(x, y) {}
+void Vector::apply(sf::Vector2f& position, float delta) {
+    position += value * delta;
+}
+
+TileType Grass::getType() {
+    return GRASS;
+}
+
+TileType Spike::getType() {
+    return SPIKE;
+}
+
+Map::Map(int row, int col) {
+    this->row = row;
+    this->col = col;
+    map.resize(row);
+    for (int i = 0; i < row; i++) {
+        map[i].resize(col);
+        for (int j = 0; j < col; j++) {
+            if (i % 2)
+                map[i][j] = new Grass;
+            else
+                map[i][j] = new Spike;
+        }
+    }
+}
+int Map::getRow() {
+    return row;
+}
+int Map::getCol() {
+    return col;
 }

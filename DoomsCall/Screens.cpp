@@ -7,7 +7,7 @@ MainScreen::MainScreen():
     start(Settings::getlength() / 2-64, Settings::getwidth() / 2-32, 2, PLAY),
     option(Settings::getlength() / 2, Settings::getwidth() / 2-32, 2, OPTIONS),
     exit(Settings::getlength() / 2-32, Settings::getwidth() / 2+32, 2, EXIT) {
-    title = sf::Sprite(Assets::getTexture(TITLE));
+    title = sf::Sprite(Settings::getTexture(TITLE));
     title.setPosition(Settings::getlength() / 2 - 190,40);
 }
 void MainScreen::input(sf::RenderWindow& window, sf::Event& event) {
@@ -222,7 +222,6 @@ void ScreenStack::render(sf::RenderWindow& window, int point) {
 }
 
 void Game::run() {
-    Assets::loadTextures();
     sf::RenderWindow window(sf::VideoMode(800, 600), "DOOMSCALL");
     window.setFramerateLimit(Settings::getmaxFPS());
     sf::Clock clock;

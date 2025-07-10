@@ -2,8 +2,6 @@
 
 #include <chrono>
 
-#include "Tiles.h"
-#include "Physics.h"
 #include "Settings.h"
 
 class Item;
@@ -45,20 +43,8 @@ public:
     int getSelection();
     void addItem(Item* item);
     void removeItem();
-    Item* getItem();
     Item* getItem(int select);
     ~Inventory();
-};
-
-class Map {
-private:
-    int row;
-    int col;
-public:
-    std::vector<std::vector<Tile*>> map;
-    Map(int row, int col);
-    int getRow();
-    int getCol();
 };
 
 class Object {
@@ -74,8 +60,8 @@ public:
 };
 class DynamicObject:public Object {
 protected:
-    Velocity velocity;
-    Acceleration acceleration;
+    Vector velocity;
+    Vector acceleration;
     bool grounded;
     bool hitceiling;
 public:
@@ -95,7 +81,6 @@ public:
 };
 class DropsPile {
     std::vector<ItemDrop> items;
-    std::vector<int> targets;
 public:
     void addItem(ItemType item,sf::Vector2f location);
     void update(Player& player, Map& map,float deltatime);

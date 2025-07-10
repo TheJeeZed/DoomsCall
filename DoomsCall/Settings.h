@@ -14,6 +14,7 @@ class Settings {
     static int length;
     static int width;
     static int maxFPS;
+    static std::vector<sf::Texture> textures;
 public:
     Settings();
     static int getlength();
@@ -23,12 +24,6 @@ public:
     static void setDelay(int val);
     static void updateDelay();
     const sf::Uint8* geticon();
-};
-class Assets {
-private:
-    static std::vector<sf::Texture> textures;
-public:
-    static void loadTextures();
     static sf::Texture& getTexture(TextureType type);
 };
 class Button {
@@ -58,4 +53,33 @@ public:
     int getSelected();
     sf::Vector2f getPosition(int index);
     sf::Vector2f getScale(int index);
+};
+
+struct Vector {
+    sf::Vector2f value;
+    Vector();
+    Vector(float x, float y);
+    void apply(sf::Vector2f& position, float delta);
+};
+
+enum TileType { GRASS, SPIKE };
+class Tile {
+public:
+    virtual TileType getType() = 0;
+};
+class Grass :public Tile {
+    TileType getType();
+};
+class Spike :public Tile {
+    TileType getType();
+};
+class Map {
+private:
+    int row;
+    int col;
+public:
+    std::vector<std::vector<Tile*>> map;
+    Map(int row, int col);
+    int getRow();
+    int getCol();
 };

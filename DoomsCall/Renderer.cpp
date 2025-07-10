@@ -1,10 +1,10 @@
 #include "Renderer.h"
 
 HUDRender::HUDRender() {
-    selected = sf::Sprite(Assets::getTexture(HUD), sf::IntRect(32, 0, 40, 40));
-    unselected = sf::Sprite(Assets::getTexture(HUD), sf::IntRect(72, 0, 40, 40));
-    filledbar = sf::Sprite(Assets::getTexture(HUD), sf::IntRect(0, 0, 32, 16));
-    hpbar = sf::Sprite(Assets::getTexture(HUD), sf::IntRect(0, 16, 32, 16));
+    selected = sf::Sprite(Settings::getTexture(HUD), sf::IntRect(32, 0, 40, 40));
+    unselected = sf::Sprite(Settings::getTexture(HUD), sf::IntRect(72, 0, 40, 40));
+    filledbar = sf::Sprite(Settings::getTexture(HUD), sf::IntRect(0, 0, 32, 16));
+    hpbar = sf::Sprite(Settings::getTexture(HUD), sf::IntRect(0, 16, 32, 16));
     selected.setPosition(sf::Vector2f(10, 10));
     unselected.setPosition(sf::Vector2f(10, 10));
     filledbar.setPosition(sf::Vector2f(15,60));
@@ -13,7 +13,7 @@ HUDRender::HUDRender() {
     {
         items.push_back(sf::IntRect(32 * i, 0, 32, 32));
     }
-    s.setTexture(Assets::getTexture(ITEMS));
+    s.setTexture(Settings::getTexture(ITEMS));
     hpbar.scale(6, 1);
 }
 void HUDRender::draw(sf::RenderWindow& window, Player& player) {
@@ -45,7 +45,7 @@ MapRender::MapRender() {
     {
         tiles.push_back(sf::IntRect(32 * i, 0, 32, 32));
     }
-    s.setTexture(Assets::getTexture(TILES));
+    s.setTexture(Settings::getTexture(TILES));
 }
 void MapRender::draw(sf::RenderWindow& window, Player& player, Map& map) {
     sf::Vector2f center = player.getCamera().getCenter();
@@ -67,7 +67,7 @@ void MapRender::draw(sf::RenderWindow& window, Player& player, Map& map) {
     }
 }
 ButtonRender::ButtonRender() {
-    buttonsprite.setTexture(Assets::getTexture(BUTTONS));
+    buttonsprite.setTexture(Settings::getTexture(BUTTONS));
 }
 void ButtonRender::draw(sf::RenderWindow& window,Button& button) {
     buttonsprite.setTextureRect(sf::IntRect(32 * button.getType(), 32 * button.isHovered(), 32, 32));
@@ -76,7 +76,7 @@ void ButtonRender::draw(sf::RenderWindow& window,Button& button) {
     window.draw(buttonsprite);
 }
 SliderRender::SliderRender() {
-    slidersprite.setTexture(Assets::getTexture(SLIDER));
+    slidersprite.setTexture(Settings::getTexture(SLIDER));
 }
 void SliderRender::draw(sf::RenderWindow& window, Slider& slider) {
     slidersprite.setScale(slider.getScale(0));
